@@ -14,8 +14,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
- * Configuration de sécurité Spring Security.
- * Intègre l'authentification JWT stateless.
+ * Configuration de securite Spring Security.
+ * Integre l'authentification JWT stateless.
  */
 @Configuration
 @EnableWebSecurity
@@ -45,12 +45,12 @@ public class SecurityConfig {
     }
 
     /**
-     * Configuration de la chaîne de filtres de sécurité.
+     * Configuration de la chaine de filtres de securite.
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // Désactive CSRF car on utilise JWT (stateless)
+            // Desactive CSRF car on utilise JWT (stateless)
             .csrf(csrf -> csrf.disable())
 
             // Configuration des autorisations
@@ -58,7 +58,8 @@ public class SecurityConfig {
                 // Endpoints publics
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/health").permitAll()
-                // Tout le reste nécessite authentification
+                .requestMatchers("/api/courses/**").permitAll()
+                // Tout le reste necessite authentification
                 .anyRequest().authenticated()
             )
 
