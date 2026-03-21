@@ -60,6 +60,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/health").permitAll()
                 .requestMatchers("/api/courses/**").permitAll()
                 .requestMatchers("/api/execute/**").permitAll()
+                .requestMatchers("/api/exercises/**").permitAll()
                 // Tout le reste necessite authentification
                 .anyRequest().authenticated()
             )
