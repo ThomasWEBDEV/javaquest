@@ -62,6 +62,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/execute/**").permitAll()
                 .requestMatchers("/api/exercises/**").permitAll()
                 .requestMatchers("/api/gamification/**").permitAll()
+                .requestMatchers("/api/quizzes/**").permitAll()
                 // Tout le reste necessite authentification
                 .anyRequest().authenticated()
             )
