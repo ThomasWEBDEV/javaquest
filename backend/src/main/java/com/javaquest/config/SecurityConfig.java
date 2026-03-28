@@ -13,10 +13,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-/**
- * Configuration de securite Spring Security.
- * Integre l'authentification JWT stateless.
- */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -27,35 +23,22 @@ public class SecurityConfig {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
-    /**
-     * Encodeur de mot de passe BCrypt.
-     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    /**
-     * Gestionnaire d'authentification.
-     */
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-    /**
-     * Configuration de la chaine de filtres de securite.
-     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // Desactive CSRF car on utilise JWT (stateless)
             .csrf(csrf -> csrf.disable())
-
-            // Configuration des autorisations
             .authorizeHttpRequests(auth -> auth
-                // Endpoints publics
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/health").permitAll()
                 .requestMatchers("/api/courses/**").permitAll()
@@ -64,16 +47,12 @@ public class SecurityConfig {
                 .requestMatchers("/api/gamification/**").permitAll()
                 .requestMatchers("/api/quizzes/**").permitAll()
                 .requestMatchers("/api/dashboard/**").permitAll()
-                // Tout le reste necessite authentification
+                .requestMatchers("/api/challenges/**").permitAll()
                 .anyRequest().authenticated()
             )
-
-            // Mode stateless (pas de session HTTP)
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
-
-            // Ajoute le filtre JWT avant le filtre d'authentification standard
             .addFilterBefore(
                 jwtAuthenticationFilter,
                 UsernamePasswordAuthenticationFilter.class
