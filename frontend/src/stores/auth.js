@@ -8,16 +8,19 @@ export const useAuthStore = defineStore('auth', () => {
 
   const isAuthenticated = computed(() => !!token.value)
 
-  async function login(email, password) {
+  async function login(username, password) {
     try {
-      const response = await api.post('/auth/login', { email, password })
+      const response = await api.post('/auth/login', { username, password })
       token.value = response.data.token
-      user.value = response.data.user
+      user.value = {
+        username: response.data.username,
+        email: response.data.email
+      }
       localStorage.setItem('token', response.data.token)
       return { success: true }
     } catch (error) {
-      return { 
-        success: false, 
+      return {
+        success: false,
         error: error.response?.data?.error || 'Erreur de connexion'
       }
     }
@@ -27,12 +30,15 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const response = await api.post('/auth/register', { username, email, password })
       token.value = response.data.token
-      user.value = response.data.user
+      user.value = {
+        username: response.data.username,
+        email: response.data.email
+      }
       localStorage.setItem('token', response.data.token)
       return { success: true }
     } catch (error) {
-      return { 
-        success: false, 
+      return {
+        success: false,
         error: error.response?.data?.error || 'Erreur d\'inscription'
       }
     }
