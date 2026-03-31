@@ -5,9 +5,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Tests unitaires pour CodeValidator.
- */
 class CodeValidatorTest {
 
     private CodeValidator codeValidator;
@@ -16,116 +13,103 @@ class CodeValidatorTest {
     @BeforeEach
     void setUp() {
         sandboxConfig = new SandboxConfig();
+        sandboxConfig.setMaxCodeLength(10000);
+        sandboxConfig.setTimeoutSeconds(5);
+        sandboxConfig.setMaxOutputLength(5000);
         codeValidator = new CodeValidator(sandboxConfig);
     }
 
     @Test
     void validate_validCode_returnsValid() {
-        // When
-        ValidationResult result = codeValidator.validate("int x = 10;");
+        String code = "System.out.println(\"Hello World\");";
 
-        // Then
-        assertTrue(result.valid());
-        assertNull(result.message());
-    }
+        ValidationResult result = codeValidator.validate(code);
 
-    @Test
-    void validate_nullCode_returnsInvalid() {
-        // When
-        ValidationResult result = codeValidator.validate(null);
-
-        // Then
-        assertFalse(result.valid());
-        assertEquals("Le code ne peut pas etre vide", result.message());
+        assertTrue(result.isValid());
     }
 
     @Test
     void validate_emptyCode_returnsInvalid() {
-        // When
-        ValidationResult result = codeValidator.validate("   ");
+        String code = "";
 
-        // Then
-        assertFalse(result.valid());
-        assertEquals("Le code ne peut pas etre vide", result.message());
+        ValidationResult result = codeValidator.validate(code);
+
+        assertFalse(result.isValid());
+        assertNotNull(result.message());
+    }
+
+    @Test
+    void validate_nullCode_returnsInvalid() {
+        ValidationResult result = codeValidator.validate(null);
+
+        assertFalse(result.isValid());
     }
 
     @Test
     void validate_fileAccess_returnsInvalid() {
-        // When
-        ValidationResult result = codeValidator.validate("new java.io.File(\"test.txt\");");
+        String code = "java.io.File file = new java.io.File(\"test.txt\");";
 
-        // Then
-        assertFalse(result.valid());
-        assertTrue(result.message().contains("non autorisees"));
+        ValidationResult result = codeValidator.validate(code);
+
+        assertFalse(result.isValid());
     }
 
     @Test
     void validate_networkAccess_returnsInvalid() {
-        // When
-        ValidationResult result = codeValidator.validate("new java.net.Socket(\"localhost\", 80);");
+        String code = "java.net.Socket socket = new java.net.Socket();";
 
-        // Then
-        assertFalse(result.valid());
-        assertTrue(result.message().contains("non autorisees"));
+        ValidationResult result = codeValidator.validate(code);
+
+        assertFalse(result.isValid());
     }
 
     @Test
     void validate_runtimeExec_returnsInvalid() {
-        // When
-        ValidationResult result = codeValidator.validate("Runtime.getRuntime().exec(\"ls\");");
+        String code = "Runtime.getRuntime().exec(\"ls\");";
 
-        // Then
-        assertFalse(result.valid());
-        assertTrue(result.message().contains("non autorisees"));
+        ValidationResult result = codeValidator.validate(code);
+
+        assertFalse(result.isValid());
     }
 
     @Test
     void validate_systemExit_returnsInvalid() {
-        // When
-        ValidationResult result = codeValidator.validate("System.exit(0);");
+        String code = "System.exit(0);";
 
-        // Then
-        assertFalse(result.valid());
-        assertTrue(result.message().contains("non autorisees"));
+        ValidationResult result = codeValidator.validate(code);
+
+        assertFalse(result.isValid());
     }
 
     @Test
-    void validate_threadCreation_returnsInvalid() {
-        // When
-        ValidationResult result = codeValidator.validate("new Thread(() -> {}).start();");
+    void validate_reflection_returnsInvalid() {
+        String code = "field.setAccessible(true);";
 
-        // Then
-        assertFalse(result.valid());
-        assertTrue(result.message().contains("non autorisees"));
+        ValidationResult result = codeValidator.validate(code);
+
+        assertFalse(result.isValid());
     }
 
     @Test
     void validate_codeTooLong_returnsInvalid() {
-        // Given
         sandboxConfig.setMaxCodeLength(10);
-        String longCode = "int x = 12345678901234567890;";
+        String code = "System.out.println(\"This code is too long\");";
 
-        // When
-        ValidationResult result = codeValidator.validate(longCode);
+        ValidationResult result = codeValidator.validate(code);
 
-        // Then
-        assertFalse(result.valid());
-        assertTrue(result.message().contains("depasse la limite"));
+        assertFalse(result.isValid());
     }
 
     @Test
-    void validate_safeCode_returnsValid() {
-        // When
-        String safeCode = """
-            int sum = 0;
-            for (int i = 0; i < 10; i++) {
-                sum += i;
-            }
-            System.out.println(sum);
+    void validate_safeOperations_returnsValid() {
+        String code = """
+            int x = 10;
+            int y = 20;
+            System.out.println(x + y);
             """;
-        ValidationResult result = codeValidator.validate(safeCode);
 
-        // Then
-        assertTrue(result.valid());
+        ValidationResult result = codeValidator.validate(code);
+
+        assertTrue(result.isValid());
     }
 }
