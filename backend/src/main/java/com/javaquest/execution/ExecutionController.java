@@ -30,7 +30,7 @@ public class ExecutionController {
         // Valide le code avant execution
         ValidationResult validation = codeValidator.validate(request.code());
 
-        if (!validation.valid()) {
+        if (!validation.isValid()) {
             return ResponseEntity.badRequest().body(Map.of(
                 "success", false,
                 "error", validation.message()
