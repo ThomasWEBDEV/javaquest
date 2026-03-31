@@ -11,7 +11,7 @@
         <router-link
           v-for="chapter in chapters"
           :key="chapter.id"
-          :to="`/courses/${chapter.id}`"
+          :to="`/courses/${chapter.slug}`"
           class="bg-white rounded-xl shadow hover:shadow-lg transition-shadow p-6"
         >
           <div class="flex items-start justify-between mb-4">
