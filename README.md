@@ -1,200 +1,100 @@
-# JavaQuest - Plateforme d'Apprentissage Java
+# JavaQuest
 
-![Java](https://img.shields.io/badge/Java-21-orange)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.5-green)
-![Vue.js](https://img.shields.io/badge/Vue.js-3-brightgreen)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue)
-![Redis](https://img.shields.io/badge/Redis-7-red)
-![Docker](https://img.shields.io/badge/Docker-Compose-blue)
-
-## Presentation
-
-JavaQuest est une application web interactive permettant d'apprendre Java de A a Z.
-
-Le projet propose une approche ludique et progressive avec un editeur de code integre, des exercices a correction automatique, un systeme de gamification complet (XP, niveaux, badges) et un suivi de progression personnalise.
-
-L'application est concue pour un apprentissage autonome et complet, couvrant tous les aspects du langage Java : des fondamentaux jusqu'aux concepts avances (Streams, Concurrence, Design Patterns).
-
-## Fonctionnalites
-
-### Apprentissage
-- [ ] Cours interactifs par chapitres progressifs
-- [ ] Editeur de code avec execution en temps reel (JShell)
-- [ ] Exercices avec correction automatique
-- [ ] Quiz de validation par chapitre
-
-### Gamification
-- [ ] Systeme XP et niveaux
-- [ ] Badges et recompenses
-- [ ] Defis quotidiens
-- [ ] Tableau de bord personnel
-
-### Technique
-- [x] API REST Spring Boot
-- [x] Authentification JWT
-- [x] Base de donnees PostgreSQL
-- [x] Cache Redis
-- [x] Frontend Vue.js 3
-- [ ] Execution de code sandboxee
-
-## Architecture
-```
-[Frontend Vue.js] <──> [API Spring Boot] <──> [PostgreSQL]
-                              |
-                           [Redis]
-                              |
-                        [JShell Engine]
-```
+Plateforme d'apprentissage Java gamifiee.
 
 ## Stack Technique
 
-| Couche | Technologie |
-|--------|-------------|
-| Backend | Java 21 + Spring Boot 3.2 |
-| Frontend | Vue.js 3 + Vite + Tailwind CSS 4 |
-| Base de donnees | PostgreSQL 16 |
-| Cache | Redis 7 |
-| Execution code | JShell API (sandboxe) |
-| Conteneurisation | Docker + Compose |
-| Tests | JUnit 5 + Mockito |
-| Versioning | Git / GitHub |
+- **Backend**: Java 21, Spring Boot 3.2.5, PostgreSQL 16, Redis 7
+- **Frontend**: Vue.js 3, Vite, Tailwind CSS 4, Pinia
+- **Auth**: JWT
 
-## Structure du Projet
-```
-javaquest/
-├── backend/                    # API Spring Boot
-│   └── src/
-│       ├── main/java/com/javaquest/
-│       │   ├── auth/           # Authentification JWT
-│       │   ├── config/         # Configuration Spring
-│       │   ├── course/         # Chapitres et lecons
-│       │   ├── exercise/       # Exercices
-│       │   ├── execution/      # Moteur JShell
-│       │   ├── gamification/   # XP, badges, niveaux
-│       │   ├── quiz/           # QCM
-│       │   └── user/           # Utilisateurs
-│       └── resources/
-│           └── db/migration/   # Scripts Flyway
-├── frontend/                   # Application Vue.js
-│   └── src/
-├── docs/                       # Documentation
-├── docker-compose.yml          # Services PostgreSQL + Redis
-└── README.md
-```
+## Installation
 
-## Contenu Pedagogique Prevu
+### Prerequis
 
-| # | Chapitre | Statut |
-|---|----------|--------|
-| 1 | Fondamentaux (variables, types, operateurs) | A faire |
-| 2 | Structures de controle (if, switch, boucles) | A faire |
-| 3 | Tableaux et Strings | A faire |
-| 4 | POO - Bases (classes, objets, methodes) | A faire |
-| 5 | POO - Avance (heritage, polymorphisme) | A faire |
-| 6 | Interfaces et classes abstraites | A faire |
-| 7 | Gestion des exceptions | A faire |
-| 8 | Collections (List, Set, Map) | A faire |
-| 9 | Generics | A faire |
-| 10 | Streams et lambdas | A faire |
-| 11 | I/O et fichiers | A faire |
-| 12 | Concurrence et threads | A faire |
-| 13 | JDBC et bases de donnees | A faire |
-| 14 | Tests unitaires (JUnit) | A faire |
-| 15 | Design patterns | A faire |
+- Java 21+
+- Node.js 18+
+- Docker et Docker Compose
 
-## Avancement
+### Demarrage
 
-### Phase 1 : Setup (Terminee)
-- [x] Initialisation repo Git + GitHub
-- [x] Structure du projet
-- [x] Configuration Maven
-- [x] Docker Compose (PostgreSQL + Redis)
-- [x] Classe principale Spring Boot
-- [x] Configuration application
-- [x] Schema base de donnees (Flyway)
-- [x] Entite User + Repository
-- [x] Configuration securite
-- [x] Tests initiaux
-- [x] Frontend Vue.js + Vite + Tailwind
-
-### Phase 2 : Authentification (Terminee)
-- [x] Service JWT (generation, validation tokens)
-- [x] DTOs (RegisterRequest, LoginRequest, AuthResponse)
-- [x] AuthService (inscription, connexion)
-- [x] AuthController (endpoints register/login)
-- [x] CustomUserDetailsService
-- [x] Filtre JWT
-- [x] Integration SecurityConfig
-- [x] Tests unitaires JwtService (5 tests)
-- [x] Tests unitaires AuthService (7 tests)
-- [x] Tests integration AuthController (8 tests)
-
-### Phase 3 : Module Cours (En cours)
-- [x] Entites Chapter/Lesson
-- [x] Repositories
-- [x] CourseService (CRUD)
-- [ ] DTOs cours
-- [ ] CourseController
-- [ ] Tests cours
-- [ ] Affichage frontend
-
-### Phase 4 : Editeur de Code
-- [ ] Integration JShell
-- [ ] Sandbox securise
-- [ ] Interface editeur
-
-### Phase 5 : Exercices
-- [ ] Correction automatique
-- [ ] Feedback detaille
-- [ ] Historique tentatives
-
-### Phase 6 : Gamification
-- [ ] Systeme XP/niveaux
-- [ ] Attribution badges
-- [ ] Calcul streaks
-
-### Phase 7 : Quiz
-- [ ] QCM par chapitre
-- [ ] Scoring
-
-### Phase 8 : Dashboard
-- [ ] Stats personnelles
-- [ ] Graphiques progression
-
-### Phase 9 : Defis Quotidiens
-- [ ] Generation automatique
-- [ ] Bonus XP
-
-### Phase 10 : Polish
-- [ ] Tests complets
-- [ ] Documentation API
-- [ ] Optimisations
-
-## Lancement
+1. **Cloner le projet**
 ```bash
-# Cloner le projet
 git clone https://github.com/ThomasWEBDEV/javaquest.git
 cd javaquest
+```
 
-# Lancer les services
+2. **Demarrer les services Docker**
+```bash
 docker compose up -d
+```
 
-# Lancer le backend
+3. **Demarrer le backend**
+```bash
 cd backend
 mvn spring-boot:run
+```
 
-# Lancer le frontend (autre terminal)
+4. **Demarrer le frontend**
+```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-| Service | URL |
-|---------|-----|
-| API | http://localhost:8080/api |
-| Frontend | http://localhost:5173 |
-| PostgreSQL | localhost:5432 |
-| Redis | localhost:6379 |
+5. **Acceder a l'application**
+- Frontend: http://localhost:5173
+- API: http://localhost:8080/api
+
+## Fonctionnalites
+
+- Authentification (inscription/connexion)
+- Cours et chapitres Java
+- Exercices avec editeur de code integre
+- Execution de code Java via JShell
+- Systeme de gamification (XP, niveaux, badges)
+- Quiz interactifs
+- Defis quotidiens
+- Dashboard de progression
+
+## API Endpoints
+
+| Module | Endpoint | Description |
+|--------|----------|-------------|
+| Auth | POST /api/auth/register | Inscription |
+| Auth | POST /api/auth/login | Connexion |
+| Cours | GET /api/courses/chapters | Liste des chapitres |
+| Exercices | GET /api/exercises/lesson/{id} | Exercices d'une lecon |
+| Execution | POST /api/execute | Executer du code Java |
+| Gamification | GET /api/gamification/progress/{userId} | Progression utilisateur |
+| Quiz | GET /api/quizzes | Liste des quiz |
+| Quiz | POST /api/quizzes/{id}/submit | Soumettre un quiz |
+| Dashboard | GET /api/dashboard/{userId}/stats | Statistiques |
+| Defis | GET /api/challenges/today | Defi du jour |
+
+## Structure du Projet
+```
+javaquest/
+├── backend/
+│   └── src/main/java/com/javaquest/
+│       ├── auth/          # Authentification JWT
+│       ├── config/        # Configuration Spring
+│       ├── course/        # Cours, chapitres, lecons
+│       ├── exercise/      # Exercices
+│       ├── execution/     # JShell sandbox
+│       ├── gamification/  # XP, badges, streaks
+│       ├── quiz/          # Quiz et questions
+│       ├── dashboard/     # Statistiques
+│       └── challenge/     # Defis quotidiens
+├── frontend/
+│   └── src/
+│       ├── components/    # Composants Vue
+│       ├── views/         # Pages
+│       ├── stores/        # Pinia stores
+│       ├── services/      # API calls
+│       └── router/        # Vue Router
+└── docker-compose.yml
+```
 
 ## Tests
 ```bash
@@ -202,21 +102,6 @@ cd backend
 mvn test
 ```
 
-Couverture actuelle : 22 tests
-- JwtServiceTest : 5 tests
-- AuthServiceTest : 7 tests
-- AuthControllerTest : 8 tests
-- HealthControllerTest : 1 test
-- JavaQuestApplicationTests : 1 test
-
 ## Auteur
 
-Thomas Feret
-
-Developpeur Full Stack - Bretagne - Mars 2026
-
-GitHub : https://github.com/ThomasWEBDEV
-
-## Licence
-
-MIT License - Libre utilisation a des fins educatives et professionnelles.
+Thomas FERET
