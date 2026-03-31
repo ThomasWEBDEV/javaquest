@@ -2,7 +2,7 @@
   <MainLayout>
     <div class="max-w-4xl mx-auto">
       <router-link to="/courses" class="text-indigo-600 hover:underline mb-4 inline-block">
-        ← Retour aux cours
+        Retour aux cours
       </router-link>
 
       <div v-if="loading" class="text-center py-12">
@@ -23,7 +23,7 @@
             <div class="flex items-start justify-between">
               <div class="flex-1">
                 <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ lesson.title }}</h3>
-                <div class="prose prose-sm text-gray-600" v-html="lesson.content?.substring(0, 200) + '...'"></div>
+                <p class="text-gray-600">{{ lesson.content?.substring(0, 200) }}...</p>
               </div>
               <router-link
                 :to="`/exercises/${lesson.id}`"
@@ -54,28 +54,23 @@ const chapter = ref(null)
 const lessons = ref([])
 const loading = ref(true)
 
-async function fetchChapter() {
+async function fetchData() {
   try {
-    const response = await api.get(`/courses/chapters/${route.params.chapterId}`)
-    chapter.value = response.data
+    // Recuperer le chapitre par slug
+    const chapterResponse = await api.get(`/courses/chapters/${route.params.chapterId}`)
+    chapter.value = chapterResponse.data
+    
+    // Recuperer les lecons avec l'ID du chapitre
+    const lessonsResponse = await api.get(`/courses/chapters/${chapter.value.id}/lessons`)
+    lessons.value = lessonsResponse.data
   } catch (error) {
-    console.error('Erreur chargement chapitre:', error)
-  }
-}
-
-async function fetchLessons() {
-  try {
-    const response = await api.get(`/courses/chapters/${route.params.chapterId}/lessons`)
-    lessons.value = response.data
-  } catch (error) {
-    console.error('Erreur chargement lecons:', error)
+    console.error('Erreur chargement:', error)
   } finally {
     loading.value = false
   }
 }
 
 onMounted(() => {
-  fetchChapter()
-  fetchLessons()
+  fetchData()
 })
 </script>
