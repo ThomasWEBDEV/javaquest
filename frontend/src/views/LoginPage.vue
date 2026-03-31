@@ -13,14 +13,15 @@
           </div>
 
           <div>
-            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Nom d'utilisateur</label>
             <input
-              id="email"
-              v-model="form.email"
-              type="email"
+              id="username"
+              v-model="form.username"
+              type="text"
               required
+              autocomplete="username"
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="votre@email.com"
+              placeholder="votre_pseudo"
             />
           </div>
 
@@ -31,6 +32,7 @@
               v-model="form.password"
               type="password"
               required
+              autocomplete="current-password"
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="••••••••"
             />
@@ -66,7 +68,7 @@ const route = useRoute()
 const authStore = useAuthStore()
 
 const form = reactive({
-  email: '',
+  username: '',
   password: ''
 })
 const loading = ref(false)
@@ -76,7 +78,7 @@ async function handleLogin() {
   loading.value = true
   error.value = ''
 
-  const result = await authStore.login(form.email, form.password)
+  const result = await authStore.login(form.username, form.password)
 
   if (result.success) {
     const redirect = route.query.redirect || '/dashboard'
