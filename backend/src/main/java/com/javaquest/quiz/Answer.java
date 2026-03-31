@@ -6,7 +6,7 @@ import jakarta.persistence.*;
  * Entite representant une reponse possible a une question.
  */
 @Entity
-@Table(name = "answers")
+@Table(name = "quiz_options")
 public class Answer {
 
     @Id
@@ -17,7 +17,7 @@ public class Answer {
     @JoinColumn(name = "question_id", nullable = false)
     private Question question;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(name = "option_text", nullable = false, columnDefinition = "TEXT")
     private String text;
 
     @Column(name = "is_correct", nullable = false)
@@ -26,55 +26,23 @@ public class Answer {
     @Column(name = "order_index", nullable = false)
     private Integer orderIndex;
 
-    // Constructeur par defaut
     public Answer() {
     }
 
-    // Constructeur avec parametres
     public Answer(String text, Boolean isCorrect, Integer orderIndex) {
         this.text = text;
         this.isCorrect = isCorrect;
         this.orderIndex = orderIndex;
     }
 
-    // Getters et Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Question getQuestion() {
-        return question;
-    }
-
-    public void setQuestion(Question question) {
-        this.question = question;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public Boolean getIsCorrect() {
-        return isCorrect;
-    }
-
-    public void setIsCorrect(Boolean isCorrect) {
-        this.isCorrect = isCorrect;
-    }
-
-    public Integer getOrderIndex() {
-        return orderIndex;
-    }
-
-    public void setOrderIndex(Integer orderIndex) {
-        this.orderIndex = orderIndex;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public Question getQuestion() { return question; }
+    public void setQuestion(Question question) { this.question = question; }
+    public String getText() { return text; }
+    public void setText(String text) { this.text = text; }
+    public Boolean getIsCorrect() { return isCorrect; }
+    public void setIsCorrect(Boolean isCorrect) { this.isCorrect = isCorrect; }
+    public Integer getOrderIndex() { return orderIndex; }
+    public void setOrderIndex(Integer orderIndex) { this.orderIndex = orderIndex; }
 }
