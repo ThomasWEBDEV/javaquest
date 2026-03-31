@@ -9,7 +9,7 @@ import java.util.List;
  * Entite representant une question de quiz.
  */
 @Entity
-@Table(name = "questions")
+@Table(name = "quiz_questions")
 public class Question {
 
     @Id
