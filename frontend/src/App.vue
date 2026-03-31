@@ -1,7 +1,20 @@
+<template>
+  <router-view />
+</template>
+
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
+import { onMounted } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+
+const authStore = useAuthStore()
+
+onMounted(() => {
+  if (authStore.token) {
+    authStore.fetchUser()
+  }
+})
 </script>
 
-<template>
-  <HelloWorld />
-</template>
+<style>
+@import 'tailwindcss';
+</style>
