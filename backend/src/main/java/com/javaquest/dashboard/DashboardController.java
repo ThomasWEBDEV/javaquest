@@ -40,10 +40,10 @@ public class DashboardController {
             @PathVariable Long userId,
             @PathVariable Long exerciseId,
             @Valid @RequestBody ExerciseAttemptRequest request) {
-        UserExerciseProgress progress = dashboardService.recordExerciseAttempt(
+        ExerciseAttemptResult result = dashboardService.recordExerciseAttempt(
             userId, exerciseId, request.code(), request.success()
         );
-        return ResponseEntity.ok(ExerciseProgressDto.fromEntity(progress));
+        return ResponseEntity.ok(ExerciseProgressDto.fromEntity(result.progress()));
     }
 
     /**

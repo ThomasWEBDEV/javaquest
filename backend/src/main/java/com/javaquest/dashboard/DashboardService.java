@@ -4,6 +4,7 @@ import com.javaquest.exercise.Exercise;
 import com.javaquest.exercise.ExerciseRepository;
 import com.javaquest.gamification.GamificationService;
 import com.javaquest.gamification.UserProgress;
+import com.javaquest.gamification.XpGainResult;
 import com.javaquest.quiz.Quiz;
 import com.javaquest.quiz.QuizRepository;
 import com.javaquest.user.User;
@@ -76,7 +77,7 @@ public class DashboardService {
      * Enregistre une tentative d'exercice.
      */
     @Transactional
-    public UserExerciseProgress recordExerciseAttempt(Long userId, Long exerciseId, String code, boolean success) {
+    public ExerciseAttemptResult recordExerciseAttempt(Long userId, Long exerciseId, String code, boolean success) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new DashboardException("Utilisateur non trouve"));
 
@@ -90,13 +91,13 @@ public class DashboardService {
         progress.incrementAttempts();
         progress.setLastCode(code);
 
+        XpGainResult xpGain = null;
         if (success && progress.getStatus() != ProgressStatus.COMPLETED) {
             progress.markCompleted();
-            // Ajouter XP via gamification
-            gamificationService.addXp(userId, exercise.getXpReward(), "Exercice complete: " + exercise.getTitle());
+            xpGain = gamificationService.addXp(userId, exercise.getXpReward(), "Exercice complete: " + exercise.getTitle());
         }
 
-        return exerciseProgressRepository.save(progress);
+        return new ExerciseAttemptResult(exerciseProgressRepository.save(progress), xpGain);
     }
 
     /**

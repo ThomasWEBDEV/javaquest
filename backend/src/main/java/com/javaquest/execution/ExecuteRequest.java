@@ -7,5 +7,6 @@ import jakarta.validation.constraints.NotBlank;
  */
 public record ExecuteRequest(
     @NotBlank(message = "Le code est requis")
-    String code
+    String code,
+    Long exerciseId
 ) {}
