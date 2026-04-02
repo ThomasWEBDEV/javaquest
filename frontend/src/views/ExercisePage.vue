@@ -111,11 +111,13 @@ async function fetchExercise() {
   }
 }
 
-async function runCode() {
+async function runCode(exerciseId = null) {
   executing.value = true
   output.value = ''
   try {
-    const response = await api.post('/execute', { code: code.value })
+    const payload = { code: code.value }
+    if (exerciseId) payload.exerciseId = exerciseId
+    const response = await api.post('/execute', payload)
     output.value = response.data.output
     outputSuccess.value = response.data.success
   } catch (error) {
@@ -127,7 +129,7 @@ async function runCode() {
 }
 
 async function submitCode() {
-  await runCode()
+  await runCode(exercise.value?.id)
   if (outputSuccess.value && authStore.user?.id) {
     try {
       await api.post(`/dashboard/${authStore.user.id}/exercises/${exercise.value.id}/attempt`, {
