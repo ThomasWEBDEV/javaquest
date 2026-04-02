@@ -116,13 +116,13 @@ class DashboardServiceTest {
         when(exerciseProgressRepository.save(any(UserExerciseProgress.class))).thenAnswer(i -> i.getArgument(0));
 
         // When
-        UserExerciseProgress progress = dashboardService.recordExerciseAttempt(1L, 1L, "code", false);
+        ExerciseAttemptResult result = dashboardService.recordExerciseAttempt(1L, 1L, "code", false);
 
         // Then
-        assertNotNull(progress);
-        assertEquals(1, progress.getAttemptsCount());
-        assertEquals(ProgressStatus.IN_PROGRESS, progress.getStatus());
-        assertEquals("code", progress.getLastCode());
+        assertNotNull(result.progress());
+        assertEquals(1, result.progress().getAttemptsCount());
+        assertEquals(ProgressStatus.IN_PROGRESS, result.progress().getStatus());
+        assertEquals("code", result.progress().getLastCode());
     }
 
     @Test
@@ -136,11 +136,11 @@ class DashboardServiceTest {
             .thenReturn(new XpGainResult(50, 550, 1, false, 5, List.of()));
 
         // When
-        UserExerciseProgress progress = dashboardService.recordExerciseAttempt(1L, 1L, "code", true);
+        ExerciseAttemptResult result = dashboardService.recordExerciseAttempt(1L, 1L, "code", true);
 
         // Then
-        assertEquals(ProgressStatus.COMPLETED, progress.getStatus());
-        assertNotNull(progress.getCompletedAt());
+        assertEquals(ProgressStatus.COMPLETED, result.progress().getStatus());
+        assertNotNull(result.progress().getCompletedAt());
         verify(gamificationService).addXp(eq(1L), eq(50), anyString());
     }
 
