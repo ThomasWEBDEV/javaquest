@@ -57,6 +57,17 @@
             </button>
           </div>
 
+          <!-- Toast XP -->
+          <transition name="fade">
+            <div
+              v-if="xpToast"
+              class="mt-4 flex items-center space-x-2 bg-yellow-50 border border-yellow-300 text-yellow-800 px-4 py-3 rounded-lg font-semibold"
+            >
+              <span class="text-xl">⭐</span>
+              <span>+{{ exercise?.xpReward }} XP gagnés !</span>
+            </div>
+          </transition>
+
           <!-- Output -->
           <div v-if="output" class="mt-4">
             <h3 class="font-semibold text-gray-900 mb-2">Resultat</h3>
@@ -89,6 +100,7 @@ const output = ref('')
 const outputSuccess = ref(false)
 const loading = ref(true)
 const executing = ref(false)
+const xpToast = ref(false)
 
 const difficultyClass = computed(() => {
   switch (exercise.value?.difficulty) {
@@ -136,7 +148,9 @@ async function submitCode() {
         code: code.value,
         success: true
       })
-      output.value += '\n\nBravo! Exercice complete! XP gagne!'
+      output.value += '\n\nBravo! Exercice complete!'
+      xpToast.value = true
+      setTimeout(() => { xpToast.value = false }, 4000)
     } catch (error) {
       console.error('Erreur soumission:', error)
     }
@@ -147,3 +161,12 @@ onMounted(() => {
   fetchExercise()
 })
 </script>
+
+<style scoped>
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.4s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+</style>
