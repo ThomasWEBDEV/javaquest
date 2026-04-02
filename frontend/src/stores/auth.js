@@ -5,6 +5,8 @@ import api from '@/services/api'
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
   const token = ref(localStorage.getItem('token'))
+  const xp = ref(0)
+  const level = ref(1)
 
   const isAuthenticated = computed(() => !!token.value)
 
@@ -44,9 +46,16 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  function setProgress(totalXp, currentLevel) {
+    xp.value = totalXp
+    level.value = currentLevel
+  }
+
   function logout() {
     token.value = null
     user.value = null
+    xp.value = 0
+    level.value = 1
     localStorage.removeItem('token')
   }
 
@@ -63,10 +72,13 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     user,
     token,
+    xp,
+    level,
     isAuthenticated,
     login,
     register,
     logout,
-    fetchUser
+    fetchUser,
+    setProgress
   }
 })

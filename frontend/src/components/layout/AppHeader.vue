@@ -33,9 +33,9 @@
         <div class="flex items-center space-x-4">
           <template v-if="authStore.isAuthenticated">
             <div class="flex items-center space-x-2 text-sm">
-              <span class="text-yellow-500 font-semibold">{{ userXp }} XP</span>
+              <span class="text-yellow-500 font-semibold">{{ authStore.xp }} XP</span>
               <span class="text-gray-400">|</span>
-              <span class="text-indigo-600 font-semibold">Niv. {{ userLevel }}</span>
+              <span class="text-indigo-600 font-semibold">Niv. {{ authStore.level }}</span>
             </div>
             <router-link 
               to="/dashboard"
@@ -71,7 +71,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/services/api'
@@ -79,15 +79,11 @@ import api from '@/services/api'
 const router = useRouter()
 const authStore = useAuthStore()
 
-const userXp = ref(0)
-const userLevel = ref(1)
-
 async function fetchProgress() {
   if (!authStore.isAuthenticated || !authStore.user?.id) return
   try {
     const response = await api.get(`/gamification/progress/${authStore.user.id}`)
-    userXp.value = response.data.totalXp
-    userLevel.value = response.data.currentLevel
+    authStore.setProgress(response.data.totalXp, response.data.currentLevel)
   } catch (error) {
     console.error('Erreur chargement progression:', error)
   }

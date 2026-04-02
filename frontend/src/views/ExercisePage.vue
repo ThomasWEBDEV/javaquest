@@ -151,6 +151,8 @@ async function submitCode() {
       output.value += '\n\nBravo! Exercice complete!'
       xpToast.value = true
       setTimeout(() => { xpToast.value = false }, 4000)
+      const progress = await api.get(`/gamification/progress/${authStore.user.id}`)
+      authStore.setProgress(progress.data.totalXp, progress.data.currentLevel)
     } catch (error) {
       console.error('Erreur soumission:', error)
     }
