@@ -49,4 +49,9 @@ public interface UserQuizAttemptRepository extends JpaRepository<UserQuizAttempt
      */
     @Query("SELECT COALESCE(SUM(a.xpEarned), 0) FROM UserQuizAttempt a WHERE a.user.id = :userId")
     long sumXpEarnedByUserId(Long userId);
+
+    /**
+     * Verifie si un utilisateur a deja reussi un quiz specifique.
+     */
+    boolean existsByUserIdAndQuizIdAndPassedTrue(Long userId, Long quizId);
 }
