@@ -114,7 +114,9 @@ public class DashboardService {
 
         UserQuizAttempt attempt = new UserQuizAttempt(user, quiz, score, correctAnswers, totalQuestions, passed, xpEarned);
 
-        if (passed && xpEarned > 0) {
+        // N'accorder l'XP qu'a la premiere reussite du quiz
+        boolean alreadyPassed = quizAttemptRepository.existsByUserIdAndQuizIdAndPassedTrue(userId, quizId);
+        if (passed && xpEarned > 0 && !alreadyPassed) {
             gamificationService.addXp(userId, xpEarned, "Quiz reussi: " + quiz.getTitle());
         }
 
