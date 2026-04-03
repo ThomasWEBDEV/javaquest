@@ -93,6 +93,17 @@
             </div>
           </div>
 
+          <!-- Toast XP -->
+          <transition name="fade">
+            <div
+              v-if="xpToast"
+              class="mt-4 flex items-center space-x-2 bg-yellow-50 border border-yellow-300 text-yellow-800 px-4 py-3 rounded-lg font-semibold"
+            >
+              <span class="text-xl">⭐</span>
+              <span>+{{ xpToastAmount }} XP gagnes!</span>
+            </div>
+          </transition>
+
           <!-- Result Message -->
           <div v-if="resultMessage" class="mt-4 p-4 rounded-lg" :class="resultSuccess ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'">
             {{ resultMessage }}
@@ -120,6 +131,8 @@ const resultMessage = ref('')
 const resultSuccess = ref(false)
 const loading = ref(true)
 const executing = ref(false)
+const xpToast = ref(false)
+const xpToastAmount = ref(0)
 
 const difficultyClass = computed(() => {
   switch (challenge.value?.difficulty) {
@@ -215,9 +228,21 @@ async function submitChallenge() {
     resultSuccess.value = response.data.success
     
     if (response.data.completed) {
-      resultMessage.value += ` (+${response.data.xpEarned} XP)`
+      xpToastAmount.value = response.data.xpEarned
+      xpToast.value = true
+      setTimeout(() => { xpToast.value = false }, 4000)
+
+      // Mettre a jour le store XP
+      if (authStore.user?.id) {
+        try {
+          const progress = await api.get(`/gamification/progress/${authStore.user.id}`)
+          authStore.setProgress(progress.data.totalXp, progress.data.currentLevel)
+        } catch (e) {
+          console.error('Erreur mise a jour XP:', e)
+        }
+      }
     }
-    
+
     await fetchUserChallenge()
   } catch (error) {
     console.error('Erreur soumission:', error)
