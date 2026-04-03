@@ -1,8 +1,12 @@
 package com.javaquest.quiz;
 
+import com.javaquest.dashboard.DashboardService;
+import com.javaquest.user.User;
+import com.javaquest.user.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,10 +21,15 @@ public class QuizController {
 
     private final QuizService quizService;
     private final QuizSubmissionService submissionService;
+    private final DashboardService dashboardService;
+    private final UserRepository userRepository;
 
-    public QuizController(QuizService quizService, QuizSubmissionService submissionService) {
+    public QuizController(QuizService quizService, QuizSubmissionService submissionService,
+                          DashboardService dashboardService, UserRepository userRepository) {
         this.quizService = quizService;
         this.submissionService = submissionService;
+        this.dashboardService = dashboardService;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -154,14 +163,25 @@ public class QuizController {
     }
 
     /**
-     * Soumet un quiz pour correction.
+     * Soumet un quiz pour correction et enregistre la tentative.
      * POST /api/quizzes/{id}/submit
      */
     @PostMapping("/{id}/submit")
     public ResponseEntity<QuizResultDto> submitQuiz(
             @PathVariable Long id,
-            @Valid @RequestBody QuizSubmissionRequest request) {
+            @Valid @RequestBody QuizSubmissionRequest request,
+            Authentication authentication) {
         QuizResultDto result = submissionService.submitQuiz(id, request);
+
+        if (authentication != null) {
+            userRepository.findByUsername(authentication.getName()).ifPresent(user ->
+                dashboardService.recordQuizAttempt(
+                    user.getId(), id, result.score(), result.correctAnswers(),
+                    result.totalQuestions(), result.passed(), result.xpEarned()
+                )
+            );
+        }
+
         return ResponseEntity.ok(result);
     }
 
