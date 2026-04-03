@@ -6,6 +6,7 @@ import com.javaquest.quiz.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,8 +16,10 @@ import java.time.LocalDate;
 /**
  * Initialise les donnees de demonstration au demarrage si necessaire.
  * S'execute apres Flyway et Hibernate pour avoir acces au schema complet.
+ * Desactive en profil test pour ne pas interferences avec les tests d'integration.
  */
 @Component
+@Profile("!test")
 public class DataInitializerService {
 
     private static final Logger log = LoggerFactory.getLogger(DataInitializerService.class);
