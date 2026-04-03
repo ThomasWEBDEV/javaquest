@@ -167,7 +167,7 @@ class QuizServiceTest {
     void addQuestion_success() {
         // Given
         when(quizRepository.findById(1L)).thenReturn(Optional.of(quiz));
-        when(quizRepository.save(any(Quiz.class))).thenAnswer(i -> i.getArgument(0));
+        when(questionRepository.save(any(Question.class))).thenAnswer(i -> i.getArgument(0));
 
         // When
         Question result = quizService.addQuestion(1L, "New question?", QuestionType.TRUE_FALSE, null, "Explanation", 1);
@@ -182,7 +182,7 @@ class QuizServiceTest {
     void addAnswer_success() {
         // Given
         when(questionRepository.findById(1L)).thenReturn(Optional.of(question));
-        when(questionRepository.save(any(Question.class))).thenAnswer(i -> i.getArgument(0));
+        when(answerRepository.save(any(Answer.class))).thenAnswer(i -> i.getArgument(0));
 
         // When
         Answer result = quizService.addAnswer(1L, "Java is a programming language", true, 1);
