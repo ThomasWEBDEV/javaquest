@@ -108,10 +108,10 @@ public class QuizService {
         Question question = new Question(text, questionType, orderIndex);
         question.setCodeSnippet(codeSnippet);
         question.setExplanation(explanation);
-        quiz.addQuestion(question);
+        question.setQuiz(quiz);
 
-        quizRepository.save(quiz);
-        return question;
+        // Sauvegarde directe pour garantir l'ID genere par IDENTITY avant le retour
+        return questionRepository.save(question);
     }
 
     /**
@@ -123,10 +123,10 @@ public class QuizService {
             .orElseThrow(() -> new QuizException("Question non trouvee"));
 
         Answer answer = new Answer(text, isCorrect, orderIndex);
-        question.addAnswer(answer);
+        answer.setQuestion(question);
 
-        questionRepository.save(question);
-        return answer;
+        // Sauvegarde directe pour garantir l'ID genere par IDENTITY avant le retour
+        return answerRepository.save(answer);
     }
 
     /**
