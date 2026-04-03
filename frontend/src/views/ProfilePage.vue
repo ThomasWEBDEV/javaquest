@@ -65,14 +65,17 @@
             <h2 class="text-xl font-bold text-gray-900 mb-4">Mes Badges</h2>
             
             <div v-if="badges.length > 0" class="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <div 
-                v-for="badge in badges" 
+              <div
+                v-for="badge in badges"
                 :key="badge.id"
                 class="p-4 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg text-center border border-yellow-200"
               >
-                <div class="text-3xl mb-2">🏆</div>
+                <div class="text-3xl mb-2">{{ badgeIcon(badge.criteriaType) }}</div>
                 <div class="font-semibold text-gray-900">{{ badge.name }}</div>
                 <div class="text-xs text-gray-500 mt-1">{{ badge.description }}</div>
+                <div v-if="badge.earnedAt" class="text-xs text-yellow-600 mt-2">
+                  {{ new Date(badge.earnedAt).toLocaleDateString('fr-FR') }}
+                </div>
               </div>
             </div>
             <div v-else class="text-center py-8 text-gray-500">
@@ -171,6 +174,18 @@ async function fetchQuizHistory() {
     quizHistory.value = response.data
   } catch (error) {
     console.error('Erreur chargement historique:', error)
+  }
+}
+
+function badgeIcon(criteriaType) {
+  switch (criteriaType) {
+    case 'XP_TOTAL': return '⭐'
+    case 'LEVEL_REACHED': return '🎯'
+    case 'EXERCISES_COMPLETED': return '💪'
+    case 'STREAK_DAYS': return '🔥'
+    case 'QUIZZES_PASSED': return '🧠'
+    case 'CHAPTERS_COMPLETED': return '📚'
+    default: return '🏆'
   }
 }
 
