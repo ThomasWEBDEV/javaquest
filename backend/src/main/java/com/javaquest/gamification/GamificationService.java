@@ -1,5 +1,8 @@
 package com.javaquest.gamification;
 
+import com.javaquest.dashboard.ProgressStatus;
+import com.javaquest.dashboard.UserExerciseProgressRepository;
+import com.javaquest.dashboard.UserQuizAttemptRepository;
 import com.javaquest.user.User;
 import com.javaquest.user.UserRepository;
 import org.springframework.stereotype.Service;
@@ -19,15 +22,21 @@ public class GamificationService {
     private final BadgeRepository badgeRepository;
     private final UserBadgeRepository userBadgeRepository;
     private final UserRepository userRepository;
+    private final UserExerciseProgressRepository exerciseProgressRepository;
+    private final UserQuizAttemptRepository quizAttemptRepository;
 
     public GamificationService(UserProgressRepository userProgressRepository,
                                BadgeRepository badgeRepository,
                                UserBadgeRepository userBadgeRepository,
-                               UserRepository userRepository) {
+                               UserRepository userRepository,
+                               UserExerciseProgressRepository exerciseProgressRepository,
+                               UserQuizAttemptRepository quizAttemptRepository) {
         this.userProgressRepository = userProgressRepository;
         this.badgeRepository = badgeRepository;
         this.userBadgeRepository = userBadgeRepository;
         this.userRepository = userRepository;
+        this.exerciseProgressRepository = exerciseProgressRepository;
+        this.quizAttemptRepository = quizAttemptRepository;
     }
 
     /**
@@ -94,6 +103,10 @@ public class GamificationService {
                 case XP_TOTAL -> progress.getTotalXp() >= badge.getCriteriaValue();
                 case LEVEL_REACHED -> progress.getCurrentLevel() >= badge.getCriteriaValue();
                 case STREAK_DAYS -> progress.getCurrentStreak() >= badge.getCriteriaValue();
+                case EXERCISES_COMPLETED -> exerciseProgressRepository
+                    .countByUserIdAndStatus(userId, ProgressStatus.COMPLETED) >= badge.getCriteriaValue();
+                case QUIZZES_PASSED -> quizAttemptRepository
+                    .countByUserIdAndPassedTrue(userId) >= badge.getCriteriaValue();
                 default -> false;
             };
 
