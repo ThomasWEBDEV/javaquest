@@ -3,7 +3,9 @@
     <div class="max-w-4xl mx-auto">
       <h1 class="text-3xl font-bold text-gray-900 mb-8">Mon Profil</h1>
 
-      <div class="grid md:grid-cols-3 gap-6">
+      <div v-if="loading" class="text-center py-12 text-gray-500">Chargement...</div>
+
+      <div v-if="!loading" class="grid md:grid-cols-3 gap-6">
         <!-- User Info -->
         <div class="md:col-span-1">
           <div class="bg-white rounded-xl shadow p-6 text-center">
@@ -62,7 +64,10 @@
 
           <!-- Badges -->
           <div class="bg-white rounded-xl shadow p-6">
-            <h2 class="text-xl font-bold text-gray-900 mb-4">Mes Badges</h2>
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-xl font-bold text-gray-900">Mes Badges</h2>
+              <span v-if="badges.length > 0" class="text-sm text-gray-500">{{ badges.length }} obtenu{{ badges.length > 1 ? 's' : '' }}</span>
+            </div>
             
             <div v-if="badges.length > 0" class="grid grid-cols-2 md:grid-cols-3 gap-4">
               <div
@@ -86,7 +91,7 @@
       </div>
 
       <!-- Quiz History -->
-      <div class="bg-white rounded-xl shadow p-6 mt-6">
+      <div v-if="!loading" class="bg-white rounded-xl shadow p-6 mt-6">
         <h2 class="text-xl font-bold text-gray-900 mb-4">Historique des Quiz</h2>
         
         <div v-if="quizHistory.length > 0" class="space-y-3">
@@ -141,6 +146,7 @@ const stats = ref({
 })
 const badges = ref([])
 const quizHistory = ref([])
+const loading = ref(true)
 
 const progressPercent = computed(() => {
   const xpInLevel = 1000 - stats.value.xpForNextLevel
@@ -154,6 +160,8 @@ async function fetchStats() {
     stats.value = response.data
   } catch (error) {
     console.error('Erreur chargement stats:', error)
+  } finally {
+    loading.value = false
   }
 }
 
