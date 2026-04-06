@@ -125,15 +125,15 @@
         <!-- Resultats par question -->
         <div v-if="result.questionResults?.length > 0" class="text-left mt-6 space-y-3 mb-6">
           <div
-            v-for="qr in result.questionResults"
+            v-for="(qr, index) in result.questionResults"
             :key="qr.questionId"
-            class="flex items-center p-3 rounded-lg"
+            class="flex items-start p-3 rounded-lg"
             :class="qr.correct ? 'bg-green-50' : 'bg-red-50'"
           >
-            <span class="text-lg mr-3">{{ qr.correct ? '✅' : '❌' }}</span>
+            <span class="text-lg mr-3 mt-0.5">{{ qr.correct ? '✅' : '❌' }}</span>
             <div class="text-sm text-gray-700">
-              <span v-if="!qr.correct && qr.explanation">{{ qr.explanation }}</span>
-              <span v-else>{{ qr.correct ? 'Correct!' : 'Incorrect' }}</span>
+              <div class="font-medium mb-1">{{ questionForId(qr.questionId)?.text || 'Question ' + (index + 1) }}</div>
+              <div v-if="!qr.correct && qr.explanation" class="text-gray-500">{{ qr.explanation }}</div>
             </div>
           </div>
         </div>
@@ -177,6 +177,10 @@ const result = ref(null)
 const loading = ref(true)
 
 const currentQuestion = computed(() => questions.value[currentIndex.value] || {})
+
+function questionForId(id) {
+  return questions.value.find(q => q.id === id)
+}
 
 async function fetchQuiz() {
   try {
