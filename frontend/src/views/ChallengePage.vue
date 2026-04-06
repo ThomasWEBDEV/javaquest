@@ -18,22 +18,25 @@
         <div class="bg-white rounded-xl shadow p-6">
           <div class="flex items-center justify-between mb-4">
             <h2 class="text-2xl font-bold text-gray-900">{{ challenge.title }}</h2>
-            <span 
+            <span
               class="px-3 py-1 rounded-full text-sm font-medium"
               :class="difficultyClass"
             >
-              {{ challenge.difficulty }}
+              {{ difficultyLabel }}
             </span>
           </div>
 
           <p class="text-gray-600 mb-6">{{ challenge.description }}</p>
 
-          <div class="flex items-center space-x-4 mb-6">
+          <div class="flex items-center flex-wrap gap-2 mb-6">
             <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm">
               +{{ challenge.xpReward }} XP
             </span>
             <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">
               Bonus 1er essai: +{{ challenge.bonusXp }} XP
+            </span>
+            <span v-if="challenge.timeLimitMinutes" class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
+              ⏱ {{ challenge.timeLimitMinutes }} min
             </span>
           </div>
 
@@ -140,6 +143,15 @@ const difficultyClass = computed(() => {
     case 'MEDIUM': return 'bg-yellow-100 text-yellow-700'
     case 'HARD': return 'bg-red-100 text-red-700'
     default: return 'bg-gray-100 text-gray-700'
+  }
+})
+
+const difficultyLabel = computed(() => {
+  switch (challenge.value?.difficulty) {
+    case 'EASY': return 'Facile'
+    case 'MEDIUM': return 'Moyen'
+    case 'HARD': return 'Difficile'
+    default: return challenge.value?.difficulty || ''
   }
 })
 
