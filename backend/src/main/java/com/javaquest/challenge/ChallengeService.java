@@ -3,10 +3,14 @@ package com.javaquest.challenge;
 import com.javaquest.gamification.GamificationService;
 import com.javaquest.user.User;
 import com.javaquest.user.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,6 +19,8 @@ import java.util.Optional;
  */
 @Service
 public class ChallengeService {
+
+    private static final Logger log = LoggerFactory.getLogger(ChallengeService.class);
 
     private final DailyChallengeRepository challengeRepository;
     private final UserDailyChallengeRepository userChallengeRepository;
@@ -167,5 +173,44 @@ public class ChallengeService {
      */
     public long countCompletedChallenges(Long userId) {
         return userChallengeRepository.countByUserIdAndStatus(userId, ChallengeStatus.COMPLETED);
+    }
+
+    /**
+     * Genere automatiquement le defi du lendemain chaque jour a 23h.
+     */
+    @Scheduled(cron = "0 0 23 * * *")
+    @Transactional
+    public void scheduleTomorrowChallenge() {
+        LocalDate tomorrow = LocalDate.now().plusDays(1);
+        if (!challengeRepository.existsByDate(tomorrow)) {
+            log.info("Generation automatique du defi pour {}", tomorrow);
+            generateDefaultChallenge(tomorrow);
+        }
+    }
+
+    /**
+     * Genere un defi par defaut pour une date donnee.
+     */
+    @Transactional
+    public void generateDefaultChallenge(LocalDate date) {
+        if (challengeRepository.existsByDate(date)) {
+            return;
+        }
+        String label = date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        try {
+            createChallenge(
+                date,
+                "Defi du " + label,
+                "Ecrivez un programme Java qui affiche les nombres de 1 a 10.",
+                "public class Main {\n    public static void main(String[] args) {\n        // Affichez les nombres de 1 a 10\n        \n    }\n}",
+                "public class Main {\n    public static void main(String[] args) {\n        for (int i = 1; i <= 10; i++) {\n            System.out.println(i);\n        }\n    }\n}",
+                "output.contains(\"10\")",
+                "Utilisez une boucle for de 1 a 10.",
+                100, 50
+            );
+            log.info("Defi genere automatiquement pour {}", date);
+        } catch (Exception e) {
+            log.warn("Impossible de generer le defi pour {}: {}", date, e.getMessage());
+        }
     }
 }
