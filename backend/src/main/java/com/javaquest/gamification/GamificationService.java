@@ -5,6 +5,8 @@ import com.javaquest.dashboard.UserExerciseProgressRepository;
 import com.javaquest.dashboard.UserQuizAttemptRepository;
 import com.javaquest.user.User;
 import com.javaquest.user.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +19,8 @@ import java.util.List;
  */
 @Service
 public class GamificationService {
+
+    private static final Logger log = LoggerFactory.getLogger(GamificationService.class);
 
     private final UserProgressRepository userProgressRepository;
     private final BadgeRepository badgeRepository;
@@ -73,6 +77,9 @@ public class GamificationService {
         userProgressRepository.save(progress);
 
         boolean leveledUp = progress.getCurrentLevel() > previousLevel;
+        if (leveledUp) {
+            log.info("Utilisateur {} passe au niveau {}", userId, progress.getCurrentLevel());
+        }
         List<Badge> newBadges = checkAndAwardBadges(userId, progress);
 
         return new XpGainResult(
@@ -114,6 +121,7 @@ public class GamificationService {
                 UserBadge userBadge = new UserBadge(user, badge);
                 userBadgeRepository.save(userBadge);
                 newBadges.add(badge);
+                log.info("Badge '{}' attribue a l'utilisateur {}", badge.getName(), userId);
             }
         }
 
