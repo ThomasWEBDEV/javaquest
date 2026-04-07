@@ -15,24 +15,22 @@
 
         <h2 class="text-xl font-bold text-gray-900 mb-4">Lecons</h2>
         <div class="space-y-4">
-          <div
+          <router-link
             v-for="lesson in lessons"
             :key="lesson.id"
-            class="bg-white rounded-xl shadow p-6"
+            :to="`/lessons/${lesson.id}`"
+            class="bg-white rounded-xl shadow p-6 block hover:shadow-md transition-shadow"
           >
             <div class="flex items-start justify-between">
               <div class="flex-1">
                 <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ lesson.title }}</h3>
                 <p class="text-gray-600">{{ lesson.content?.substring(0, 200) }}...</p>
               </div>
-              <router-link
-                :to="`/exercises/${lesson.id}`"
-                class="ml-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm whitespace-nowrap"
-              >
-                Voir exercices
-              </router-link>
+              <span class="ml-4 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm whitespace-nowrap">
+                Voir la lecon
+              </span>
             </div>
-          </div>
+          </router-link>
         </div>
 
         <div v-if="lessons.length === 0" class="text-center py-8 text-gray-500">
