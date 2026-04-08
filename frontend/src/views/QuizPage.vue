@@ -10,9 +10,18 @@
         <div class="bg-white rounded-xl shadow p-6 mb-6">
           <div class="flex items-center justify-between mb-4">
             <h1 class="text-2xl font-bold text-gray-900">{{ quiz?.title }}</h1>
-            <span class="text-sm text-gray-500">
-              Question {{ currentIndex + 1 }} / {{ questions.length }}
-            </span>
+            <div class="flex items-center gap-4">
+              <span
+                v-if="timeLeft !== null"
+                class="text-sm font-semibold px-3 py-1 rounded-full"
+                :class="timeLeft <= 30 ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'"
+              >
+                ⏱ {{ formattedTime }}
+              </span>
+              <span class="text-sm text-gray-500">
+                Question {{ currentIndex + 1 }} / {{ questions.length }}
+              </span>
+            </div>
           </div>
           <div class="w-full bg-gray-200 rounded-full h-2">
             <div
@@ -158,7 +167,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import MainLayout from '@/components/layout/MainLayout.vue'
 import { useAuthStore } from '@/stores/auth'
@@ -175,6 +184,30 @@ const submitted = ref(false)
 const submitting = ref(false)
 const result = ref(null)
 const loading = ref(true)
+const timeLeft = ref(null)
+let timerInterval = null
+
+const formattedTime = computed(() => {
+  if (timeLeft.value === null) return ''
+  const m = Math.floor(timeLeft.value / 60)
+  const s = timeLeft.value % 60
+  return `${m}:${s.toString().padStart(2, '0')}`
+})
+
+function startTimer(seconds) {
+  timeLeft.value = seconds
+  timerInterval = setInterval(() => {
+    timeLeft.value--
+    if (timeLeft.value <= 0) {
+      clearInterval(timerInterval)
+      submitQuiz()
+    }
+  }, 1000)
+}
+
+onUnmounted(() => {
+  if (timerInterval) clearInterval(timerInterval)
+})
 
 const currentQuestion = computed(() => questions.value[currentIndex.value] || {})
 
@@ -195,6 +228,10 @@ async function fetchQuiz() {
     questions.value.forEach(q => {
       selectedAnswers.value[q.id] = []
     })
+
+    if (quiz.value.timeLimitSeconds > 0) {
+      startTimer(quiz.value.timeLimitSeconds)
+    }
   } catch (error) {
     console.error('Erreur chargement quiz:', error)
   } finally {
@@ -203,6 +240,7 @@ async function fetchQuiz() {
 }
 
 async function submitQuiz() {
+  if (timerInterval) clearInterval(timerInterval)
   submitting.value = true
   try {
     const response = await api.post(`/quizzes/${route.params.quizId}/submit`, {
