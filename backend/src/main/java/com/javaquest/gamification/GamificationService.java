@@ -112,9 +112,10 @@ public class GamificationService {
                 case STREAK_DAYS -> progress.getCurrentStreak() >= badge.getCriteriaValue();
                 case EXERCISES_COMPLETED -> exerciseProgressRepository
                     .countByUserIdAndStatus(userId, ProgressStatus.COMPLETED) >= badge.getCriteriaValue();
+                case CHAPTERS_COMPLETED -> exerciseProgressRepository
+                    .countDistinctCompletedChapters(userId, ProgressStatus.COMPLETED) >= badge.getCriteriaValue();
                 case QUIZZES_PASSED -> quizAttemptRepository
                     .countByUserIdAndPassedTrue(userId) >= badge.getCriteriaValue();
-                default -> false;
             };
 
             if (earned) {
