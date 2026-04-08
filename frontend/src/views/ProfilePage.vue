@@ -107,7 +107,7 @@
               </div>
             </div>
             <div class="text-right">
-              <div 
+              <div
                 class="font-bold"
                 :class="attempt.passed ? 'text-green-600' : 'text-red-600'"
               >
@@ -115,6 +115,9 @@
               </div>
               <div class="text-sm text-gray-500">
                 {{ attempt.correctAnswers }}/{{ attempt.totalQuestions }}
+              </div>
+              <div v-if="attempt.xpEarned > 0" class="text-xs text-yellow-600 font-medium">
+                +{{ attempt.xpEarned }} XP
               </div>
             </div>
           </div>
