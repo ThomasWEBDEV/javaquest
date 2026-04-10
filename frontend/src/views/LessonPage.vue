@@ -41,7 +41,7 @@
         <div class="grid gap-4" :class="quizzes.length > 0 ? 'sm:grid-cols-2' : 'grid-cols-1'">
           <!-- Exercices -->
           <router-link
-            :to="`/exercises/${lesson.id}`"
+            :to="`/lessons/${lesson.id}/exercises`"
             class="bg-white rounded-xl shadow p-6 flex items-center space-x-4 hover:shadow-md transition-shadow group"
           >
             <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-2xl group-hover:bg-green-200 transition-colors">
