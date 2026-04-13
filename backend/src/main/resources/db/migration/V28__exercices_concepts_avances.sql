@@ -1,0 +1,46 @@
+-- V28: Exercices Concepts Avances (lecon 5 POO)
+
+-- =============================================
+-- EXERCICE 1 : Compteur Statique (EASY)
+-- =============================================
+
+INSERT INTO exercises (lesson_id, title, description, starter_code, solution_code, test_code, hints, difficulty, xp_reward, order_index)
+SELECT l.id,
+    'Compteur Statique',
+    'Completez le constructeur pour incrementer le champ static count a chaque creation d un objet, et implementez getCount() pour retourner la valeur de count. Le champ static est partage entre toutes les instances : chaque new Objet() incremente le meme compteur. Appelez getCount() sur la classe directement : Objet.getCount().',
+    E'public class Main {\n\n    static class Objet {\n        private String nom;\n        private static int count = 0;\n\n        Objet(String nom) {\n            this.nom = nom;\n            // TODO: incrementez count\n        }\n\n        public String getNom() { return nom; }\n\n        public static int getCount() {\n            // TODO: retournez count\n            return 0;\n        }\n    }\n\n    public static void main(String[] args) {\n        System.out.println("Nombre d objets : " + Objet.getCount());\n        Objet o1 = new Objet("Bureau");\n        Objet o2 = new Objet("Chaise");\n        Objet o3 = new Objet("Lampe");\n        System.out.println("Nombre d objets : " + Objet.getCount());\n    }\n}',
+    E'public class Main {\n\n    static class Objet {\n        private String nom;\n        private static int count = 0;\n\n        Objet(String nom) {\n            this.nom = nom;\n            count++;\n        }\n\n        public String getNom() { return nom; }\n\n        public static int getCount() {\n            return count;\n        }\n    }\n\n    public static void main(String[] args) {\n        System.out.println("Nombre d objets : " + Objet.getCount());\n        Objet o1 = new Objet("Bureau");\n        Objet o2 = new Objet("Chaise");\n        Objet o3 = new Objet("Lampe");\n        System.out.println("Nombre d objets : " + Objet.getCount());\n    }\n}',
+    'output.contains("Nombre d objets : 0") && output.contains("Nombre d objets : 3")',
+    E'Dans le constructeur, ajoutez simplement count++; apres this.nom = nom;. count est un champ static donc partage par toutes les instances : chaque appel au constructeur l incremente. getCount() retourne simplement count avec return count;. Avant toute creation, count vaut 0. Apres trois new Objet(), count vaut 3. Appelez Objet.getCount() sur la classe car c est une methode static.',
+    'EASY', 50, 1
+FROM lessons l WHERE l.slug = 'concepts-avances';
+
+-- =============================================
+-- EXERCICE 2 : Jours de la Semaine (MEDIUM)
+-- =============================================
+
+INSERT INTO exercises (lesson_id, title, description, starter_code, solution_code, test_code, hints, difficulty, xp_reward, order_index)
+SELECT l.id,
+    'Jours de la Semaine',
+    'Implementez getNom(int numero) qui retourne la constante static final correspondante : 1 retourne LUNDI, 2 retourne MARDI, jusqu a 7 pour DIMANCHE. Si le numero est invalide (inferieur a 1 ou superieur a 7), retournez "Inconnu". Les constantes static final garantissent que les noms des jours ne peuvent jamais etre modifies.',
+    E'public class Main {\n\n    static class Semaine {\n        static final String LUNDI    = "Lundi";\n        static final String MARDI    = "Mardi";\n        static final String MERCREDI = "Mercredi";\n        static final String JEUDI    = "Jeudi";\n        static final String VENDREDI = "Vendredi";\n        static final String SAMEDI   = "Samedi";\n        static final String DIMANCHE = "Dimanche";\n\n        static String getNom(int numero) {\n            // TODO: retournez la constante correspondante au numero\n            // 1 -> LUNDI, 2 -> MARDI, ..., 7 -> DIMANCHE\n            // Si numero invalide, retournez "Inconnu"\n            return "";\n        }\n    }\n\n    public static void main(String[] args) {\n        System.out.println(Semaine.getNom(1));\n        System.out.println(Semaine.getNom(5));\n        System.out.println(Semaine.getNom(7));\n        System.out.println(Semaine.getNom(9));\n    }\n}',
+    E'public class Main {\n\n    static class Semaine {\n        static final String LUNDI    = "Lundi";\n        static final String MARDI    = "Mardi";\n        static final String MERCREDI = "Mercredi";\n        static final String JEUDI    = "Jeudi";\n        static final String VENDREDI = "Vendredi";\n        static final String SAMEDI   = "Samedi";\n        static final String DIMANCHE = "Dimanche";\n\n        static String getNom(int numero) {\n            if (numero == 1) return LUNDI;\n            if (numero == 2) return MARDI;\n            if (numero == 3) return MERCREDI;\n            if (numero == 4) return JEUDI;\n            if (numero == 5) return VENDREDI;\n            if (numero == 6) return SAMEDI;\n            if (numero == 7) return DIMANCHE;\n            return "Inconnu";\n        }\n    }\n\n    public static void main(String[] args) {\n        System.out.println(Semaine.getNom(1));\n        System.out.println(Semaine.getNom(5));\n        System.out.println(Semaine.getNom(7));\n        System.out.println(Semaine.getNom(9));\n    }\n}',
+    'output.contains("Lundi") && output.contains("Vendredi") && output.contains("Dimanche") && output.contains("Inconnu")',
+    E'Utilisez une serie de if simples : if (numero == 1) return LUNDI;. Faites cela pour chaque numero de 1 a 7. Apres tous les if, ajoutez return "Inconnu"; pour les cas invalides. Comme les constantes sont static final dans la meme classe, vous pouvez les utiliser directement sans this ni Semaine. : return LUNDI est suffisant. numero == 9 ne correspond a aucun cas donc retourne "Inconnu".',
+    'MEDIUM', 75, 2
+FROM lessons l WHERE l.slug = 'concepts-avances';
+
+-- =============================================
+-- EXERCICE 3 : Classe Point avec equals et toString (HARD)
+-- =============================================
+
+INSERT INTO exercises (lesson_id, title, description, starter_code, solution_code, test_code, hints, difficulty, xp_reward, order_index)
+SELECT l.id,
+    'Point avec equals et toString',
+    'Implementez toString() qui retourne "(" + x + ", " + y + ")" et equals() qui retourne true si les deux points ont les memes coordonnees x et y. Dans equals(), verifiez d abord avec instanceof que obj est bien un Point, puis castez-le pour acceder a ses champs. Deux points new Point(3,5) doivent etre egaux par equals() meme si ce sont deux objets distincts en memoire.',
+    E'public class Main {\n\n    static class Point {\n        private int x;\n        private int y;\n\n        Point(int x, int y) {\n            this.x = x;\n            this.y = y;\n        }\n\n        public int getX() { return x; }\n        public int getY() { return y; }\n\n        @Override\n        public String toString() {\n            // TODO: retournez "(" + x + ", " + y + ")"\n            return "";\n        }\n\n        @Override\n        public boolean equals(Object obj) {\n            // TODO: si obj instanceof Point, castez-le et comparez x et y\n            // retournez true si les deux x sont egaux ET les deux y sont egaux\n            // retournez false sinon\n            return false;\n        }\n    }\n\n    public static void main(String[] args) {\n        Point p1 = new Point(3, 5);\n        Point p2 = new Point(3, 5);\n        Point p3 = new Point(1, 2);\n\n        System.out.println(p1);\n        System.out.println(p1.equals(p2));\n        System.out.println(p1.equals(p3));\n    }\n}',
+    E'public class Main {\n\n    static class Point {\n        private int x;\n        private int y;\n\n        Point(int x, int y) {\n            this.x = x;\n            this.y = y;\n        }\n\n        public int getX() { return x; }\n        public int getY() { return y; }\n\n        @Override\n        public String toString() {\n            return "(" + x + ", " + y + ")";\n        }\n\n        @Override\n        public boolean equals(Object obj) {\n            if (obj instanceof Point) {\n                Point autre = (Point) obj;\n                return this.x == autre.x && this.y == autre.y;\n            }\n            return false;\n        }\n    }\n\n    public static void main(String[] args) {\n        Point p1 = new Point(3, 5);\n        Point p2 = new Point(3, 5);\n        Point p3 = new Point(1, 2);\n\n        System.out.println(p1);\n        System.out.println(p1.equals(p2));\n        System.out.println(p1.equals(p3));\n    }\n}',
+    'output.contains("(3, 5)") && output.contains("true") && output.contains("false")',
+    E'toString() : retournez simplement "(" + x + ", " + y + ")". System.out.println(p1) appellera toString() automatiquement et affichera (3, 5). Pour equals() : if (obj instanceof Point) { Point autre = (Point) obj; return this.x == autre.x && this.y == autre.y; } return false;. Le cast (Point) obj est necessaire pour acceder aux champs x et y de l objet. p1 et p2 ont les memes coordonnees donc equals() retourne true. p1 et p3 ont des coordonnees differentes donc false.',
+    'HARD', 100, 3
+FROM lessons l WHERE l.slug = 'concepts-avances';
