@@ -37,7 +37,7 @@ WITH q AS (
     WHERE l.slug = 'treemap-treeset'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'TreeMap est plus rapide que HashMap', false, 1),
 ((SELECT id FROM q), 'TreeMap trie les cles automatiquement, HashMap ne le fait pas', true, 2),
 ((SELECT id FROM q), 'TreeMap accepte des cles dupliquees, pas HashMap', false, 3),
@@ -56,7 +56,7 @@ WITH q AS (
     WHERE l.slug = 'treemap-treeset'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'minKey()', false, 1),
 ((SELECT id FROM q), 'getFirst()', false, 2),
 ((SELECT id FROM q), 'firstKey()', true, 3),
@@ -75,7 +75,7 @@ WITH q AS (
     WHERE l.slug = 'treemap-treeset'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'Retourne les 5 premieres entrees de la carte', false, 1),
 ((SELECT id FROM q), 'Retourne toutes les entrees avec une cle >= 5', false, 2),
 ((SELECT id FROM q), 'Retourne toutes les entrees avec une cle < 5', true, 3),
@@ -94,7 +94,7 @@ WITH q AS (
     WHERE l.slug = 'treemap-treeset'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), '"Zoe"', false, 1),
 ((SELECT id FROM q), '"Alice"', true, 2),
 ((SELECT id FROM q), '"Marie"', false, 3),
@@ -113,7 +113,7 @@ WITH q AS (
     WHERE l.slug = 'treemap-treeset'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'O(1) - acces instantane', false, 1),
 ((SELECT id FROM q), 'O(n) - parcours lineaire', false, 2),
 ((SELECT id FROM q), 'O(log n) - arbre equilibre', true, 3),
@@ -132,7 +132,7 @@ WITH q AS (
     WHERE l.slug = 'treemap-treeset'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'Quand on a besoin des meilleures performances en insertion', false, 1),
 ((SELECT id FROM q), 'Quand on veut autoriser les doublons dans la collection', false, 2),
 ((SELECT id FROM q), 'Quand on a besoin que les elements soient tries et d acceder au min/max', true, 3),

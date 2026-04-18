@@ -51,7 +51,7 @@ WITH q AS (
     WHERE l.slug = 'try-catch-finally'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'Le programme continue normalement en ignorant l erreur', false, 1),
 ((SELECT id FROM q), 'L exception est automatiquement corrigee par Java', false, 2),
 ((SELECT id FROM q), 'Le programme s arrete brutalement avec un message d erreur', true, 3),
@@ -70,7 +70,7 @@ WITH q AS (
     WHERE l.slug = 'try-catch-finally'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'DivisionException', false, 1),
 ((SELECT id FROM q), 'MathException', false, 2),
 ((SELECT id FROM q), 'IllegalArgumentException', false, 3),
@@ -89,7 +89,7 @@ WITH q AS (
     WHERE l.slug = 'try-catch-finally'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'Uniquement si une exception est levee', false, 1),
 ((SELECT id FROM q), 'Uniquement si aucune exception n est levee', false, 2),
 ((SELECT id FROM q), 'Toujours, qu une exception soit levee ou non', true, 3),
@@ -108,7 +108,7 @@ WITH q AS (
     WHERE l.slug = 'try-catch-finally'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'Le type de l exception sous forme de String', false, 1),
 ((SELECT id FROM q), 'Le message d erreur descriptif de l exception', true, 2),
 ((SELECT id FROM q), 'Le numero de ligne ou l exception a ete levee', false, 3),
@@ -127,7 +127,7 @@ WITH q AS (
     WHERE l.slug = 'try-catch-finally'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'ClassCastException', false, 1),
 ((SELECT id FROM q), 'IllegalArgumentException', false, 2),
 ((SELECT id FROM q), 'NumberFormatException', true, 3),
@@ -146,7 +146,7 @@ WITH q AS (
     WHERE l.slug = 'try-catch-finally'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'raise', false, 1),
 ((SELECT id FROM q), 'throws', false, 2),
 ((SELECT id FROM q), 'throw', true, 3),

@@ -37,7 +37,7 @@ WITH q AS (
     WHERE l.slug = 'exceptions-personnalisees'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'Object', false, 1),
 ((SELECT id FROM q), 'Error', false, 2),
 ((SELECT id FROM q), 'Exception', true, 3),
@@ -56,7 +56,7 @@ WITH q AS (
     WHERE l.slug = 'exceptions-personnalisees'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'Il affiche le message dans la console', false, 1),
 ((SELECT id FROM q), 'Il appelle le constructeur de la classe parente avec le message', true, 2),
 ((SELECT id FROM q), 'Il initialise une variable locale message', false, 3),
@@ -75,7 +75,7 @@ WITH q AS (
     WHERE l.slug = 'exceptions-personnalisees'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'throw', false, 1),
 ((SELECT id FROM q), 'throws', true, 2),
 ((SELECT id FROM q), 'catch', false, 3),
@@ -94,7 +94,7 @@ WITH q AS (
     WHERE l.slug = 'exceptions-personnalisees'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'La checked exception est plus rapide a l execution', false, 1),
 ((SELECT id FROM q), 'La checked exception doit obligatoirement etre geree, pas la unchecked', true, 2),
 ((SELECT id FROM q), 'La unchecked exception ne peut pas etre attrapee avec catch', false, 3),
@@ -113,7 +113,7 @@ WITH q AS (
     WHERE l.slug = 'exceptions-personnalisees'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'Pour que l exception soit plus rapide', false, 1),
 ((SELECT id FROM q), 'C est une obligation imposee par Java', false, 2),
 ((SELECT id FROM q), 'Pour fournir au code appelant les informations necessaires pour traiter l erreur', true, 3),
@@ -132,7 +132,7 @@ WITH q AS (
     WHERE l.slug = 'exceptions-personnalisees'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'Commencer par "Ex" (ex: ExAgeInvalide)', false, 1),
 ((SELECT id FROM q), 'Commencer par "Error" (ex: ErrorAgeInvalide)', false, 2),
 ((SELECT id FROM q), 'Se terminer par "Exception" (ex: AgeInvalideException)', true, 3),

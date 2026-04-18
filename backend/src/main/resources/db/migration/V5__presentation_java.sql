@@ -1,6 +1,19 @@
 -- V5: Contenu detaille du chapitre Introduction a Java + QCMs
 
 -- =============================================
+-- SCHEMA: Colonnes manquantes pour les entites Quiz et Question
+-- =============================================
+
+ALTER TABLE quizzes
+    ADD COLUMN IF NOT EXISTS lesson_id BIGINT REFERENCES lessons(id) ON DELETE CASCADE,
+    ADD COLUMN IF NOT EXISTS description TEXT,
+    ADD COLUMN IF NOT EXISTS time_limit_seconds INTEGER;
+
+ALTER TABLE quiz_questions
+    ADD COLUMN IF NOT EXISTS text TEXT,
+    ADD COLUMN IF NOT EXISTS code_snippet TEXT;
+
+-- =============================================
 -- CONTENU RICHE : Qu'est-ce que Java ?
 -- =============================================
 

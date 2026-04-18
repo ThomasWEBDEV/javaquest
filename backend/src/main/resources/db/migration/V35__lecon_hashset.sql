@@ -37,7 +37,7 @@ WITH q AS (
     WHERE l.slug = 'hashset'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'Il permet les doublons et garantit l ordre d insertion', false, 1),
 ((SELECT id FROM q), 'Il stocke des paires cle-valeur comme une HashMap', false, 2),
 ((SELECT id FROM q), 'Il refuse les doublons et ne garantit pas l ordre', true, 3),
@@ -56,7 +56,7 @@ WITH q AS (
     WHERE l.slug = 'hashset'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'put("element")', false, 1),
 ((SELECT id FROM q), 'add("element")', true, 2),
 ((SELECT id FROM q), 'insert("element")', false, 3),
@@ -75,7 +75,7 @@ WITH q AS (
     WHERE l.slug = 'hashset'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'Une exception est levee', false, 1),
 ((SELECT id FROM q), 'true', false, 2),
 ((SELECT id FROM q), 'null', false, 3),
@@ -94,7 +94,7 @@ WITH q AS (
     WHERE l.slug = 'hashset'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'monSet.has("element")', false, 1),
 ((SELECT id FROM q), 'monSet.exists("element")', false, 2),
 ((SELECT id FROM q), 'monSet.contains("element")', true, 3),
@@ -113,7 +113,7 @@ WITH q AS (
     WHERE l.slug = 'hashset'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'ArrayList est toujours plus rapide que HashSet', false, 1),
 ((SELECT id FROM q), 'HashSet interdit les doublons, ArrayList les autorise', true, 2),
 ((SELECT id FROM q), 'HashSet peut contenir des types primitifs comme int', false, 3),
@@ -132,7 +132,7 @@ WITH q AS (
     WHERE l.slug = 'hashset'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'O(n) - parcours de tous les elements', false, 1),
 ((SELECT id FROM q), 'O(log n) - recherche dichotomique', false, 2),
 ((SELECT id FROM q), 'O(n2) - comparaison de tous les couples', false, 3),

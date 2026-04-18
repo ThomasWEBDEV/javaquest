@@ -37,7 +37,7 @@ WITH q AS (
     WHERE l.slug = 'multi-catch-propagation'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'catch (IOException && SQLException e)', false, 1),
 ((SELECT id FROM q), 'catch (IOException | SQLException e)', true, 2),
 ((SELECT id FROM q), 'catch (IOException, SQLException e)', false, 3),
@@ -56,7 +56,7 @@ WITH q AS (
     WHERE l.slug = 'multi-catch-propagation'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'Elle est modifiable comme dans un catch normal', false, 1),
 ((SELECT id FROM q), 'Elle est implicitement final et ne peut pas etre reassignee', true, 2),
 ((SELECT id FROM q), 'Elle contient toujours la derniere exception levee', false, 3),
@@ -75,7 +75,7 @@ WITH q AS (
     WHERE l.slug = 'multi-catch-propagation'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'Pour ignorer definitivement une exception', false, 1),
 ((SELECT id FROM q), 'Pour traiter partiellement puis propager l exception a la couche superieure', true, 2),
 ((SELECT id FROM q), 'Pour convertir une exception en valeur de retour', false, 3),
@@ -94,7 +94,7 @@ WITH q AS (
     WHERE l.slug = 'multi-catch-propagation'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'new RuntimeException(e.getMessage())', false, 1),
 ((SELECT id FROM q), 'new RuntimeException("message", e)', true, 2),
 ((SELECT id FROM q), 'RuntimeException.wrap(e)', false, 3),
@@ -113,7 +113,7 @@ WITH q AS (
     WHERE l.slug = 'multi-catch-propagation'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'Disposable', false, 1),
 ((SELECT id FROM q), 'Releasable', false, 2),
 ((SELECT id FROM q), 'AutoCloseable', true, 3),
@@ -132,7 +132,7 @@ WITH q AS (
     WHERE l.slug = 'multi-catch-propagation'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'Le code s execute plus rapidement qu avec finally', false, 1),
 ((SELECT id FROM q), 'La ressource est fermee automatiquement meme si une exception survient', true, 2),
 ((SELECT id FROM q), 'Les exceptions dans close() sont automatiquement loggees', false, 3),

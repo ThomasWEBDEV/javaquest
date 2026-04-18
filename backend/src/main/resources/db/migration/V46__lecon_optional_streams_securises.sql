@@ -37,7 +37,7 @@ WITH q AS (
     WHERE l.slug = 'optional-streams-securises'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'Optional.of()', false, 1),
 ((SELECT id FROM q), 'Optional.ofNullable()', true, 2),
 ((SELECT id FROM q), 'Optional.nullable()', false, 3),
@@ -56,7 +56,7 @@ WITH q AS (
     WHERE l.slug = 'optional-streams-securises'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'Retourne null', false, 1),
 ((SELECT id FROM q), 'Lance une NoSuchElementException', true, 2),
 ((SELECT id FROM q), 'Lance une NullPointerException', false, 3),
@@ -75,7 +75,7 @@ WITH q AS (
     WHERE l.slug = 'optional-streams-securises'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'get()', false, 1),
 ((SELECT id FROM q), 'ifPresent()', false, 2),
 ((SELECT id FROM q), 'orElse()', true, 3),
@@ -94,7 +94,7 @@ WITH q AS (
     WHERE l.slug = 'optional-streams-securises'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'Il n y a aucune difference entre les deux', false, 1),
 ((SELECT id FROM q), 'orElse() evalue toujours son argument, orElseGet() seulement si vide', true, 2),
 ((SELECT id FROM q), 'orElseGet() evalue toujours son argument, orElse() seulement si vide', false, 3),
@@ -113,7 +113,7 @@ WITH q AS (
     WHERE l.slug = 'optional-streams-securises'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'Elle verifie si l Optional est present', false, 1),
 ((SELECT id FROM q), 'Elle transforme la valeur si presente et retourne un nouveau Optional', true, 2),
 ((SELECT id FROM q), 'Elle filtre les valeurs selon un critere booleen', false, 3),
@@ -132,7 +132,7 @@ WITH q AS (
     WHERE l.slug = 'optional-streams-securises'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index) VALUES
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index) VALUES
 ((SELECT id FROM q), 'T (le type direct, null si vide)', false, 1),
 ((SELECT id FROM q), 'List<T> avec 0 ou 1 element', false, 2),
 ((SELECT id FROM q), 'Optional<T>', true, 3),
