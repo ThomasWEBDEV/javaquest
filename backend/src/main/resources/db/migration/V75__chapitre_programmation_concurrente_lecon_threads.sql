@@ -51,7 +51,7 @@ WITH q AS (
     WHERE l.slug = 'threads-runnable'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index)
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index)
 SELECT q.id, opt.text, opt.is_correct, opt.order_index
 FROM q,
 (VALUES
@@ -74,7 +74,7 @@ WITH q AS (
     WHERE l.slug = 'threads-runnable'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index)
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index)
 SELECT q.id, opt.text, opt.is_correct, opt.order_index
 FROM q,
 (VALUES
@@ -97,7 +97,7 @@ WITH q AS (
     WHERE l.slug = 'threads-runnable'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index)
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index)
 SELECT q.id, opt.text, opt.is_correct, opt.order_index
 FROM q,
 (VALUES
@@ -120,7 +120,7 @@ WITH q AS (
     WHERE l.slug = 'threads-runnable'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index)
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index)
 SELECT q.id, opt.text, opt.is_correct, opt.order_index
 FROM q,
 (VALUES
@@ -143,7 +143,7 @@ WITH q AS (
     WHERE l.slug = 'threads-runnable'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index)
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index)
 SELECT q.id, opt.text, opt.is_correct, opt.order_index
 FROM q,
 (VALUES
@@ -166,7 +166,7 @@ WITH q AS (
     WHERE l.slug = 'threads-runnable'
     RETURNING id
 )
-INSERT INTO quiz_options (question_id, text, is_correct, order_index)
+INSERT INTO quiz_options (question_id, option_text, is_correct, order_index)
 SELECT q.id, opt.text, opt.is_correct, opt.order_index
 FROM q,
 (VALUES
