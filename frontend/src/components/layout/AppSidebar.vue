@@ -1,52 +1,83 @@
 <template>
-  <aside class="w-64 bg-white border-r border-gray-200 min-h-screen p-4">
-    <nav class="space-y-2">
-      <router-link 
-        v-for="item in menuItems" 
+  <aside class="w-64 bg-white border-r border-gray-100 min-h-screen flex flex-col py-6 px-3">
+    <!-- Menu principal -->
+    <nav class="space-y-1 flex-1">
+      <router-link
+        v-for="item in menuItems"
         :key="item.path"
         :to="item.path"
-        class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors"
-        :class="[
-          $route.path === item.path 
-            ? 'bg-indigo-50 text-indigo-600' 
-            : 'text-gray-600 hover:bg-gray-50'
-        ]"
+        class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-sm"
+        :class="isActive(item.path)
+          ? 'bg-indigo-50 text-indigo-700'
+          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'"
       >
-        <component :is="item.icon" class="w-5 h-5" />
-        <span class="font-medium">{{ item.label }}</span>
+        <span class="text-lg">{{ item.icon }}</span>
+        <span>{{ item.label }}</span>
+        <span
+          v-if="isActive(item.path)"
+          class="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-500"
+        ></span>
       </router-link>
     </nav>
 
-    <!-- Streak -->
-    <div class="mt-8 p-4 bg-gradient-to-r from-orange-400 to-red-500 rounded-lg text-white">
-      <div class="text-sm font-medium opacity-90">Serie en cours</div>
-      <div class="text-3xl font-bold">{{ streak }} jours</div>
+    <!-- Stats en bas -->
+    <div class="mt-6 space-y-3 px-1">
+      <!-- Streak -->
+      <div class="bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl p-4 text-white">
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-sm font-medium text-orange-100">Série en cours</span>
+          <span class="text-xl">🔥</span>
+        </div>
+        <div class="text-3xl font-bold">{{ streak }}<span class="text-lg font-normal text-orange-200 ml-1">jours</span></div>
+      </div>
+
+      <!-- XP + Niveau -->
+      <div class="bg-gray-50 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Niveau</span>
+          <span class="text-sm font-bold text-indigo-700">{{ authStore.level }}</span>
+        </div>
+        <div class="text-xl font-bold text-gray-900">{{ authStore.xp }} <span class="text-sm font-normal text-gray-400">XP</span></div>
+        <!-- Barre de progression XP approximative -->
+        <div class="mt-2 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+          <div
+            class="h-full bg-indigo-500 rounded-full transition-all"
+            :style="{ width: xpBarWidth + '%' }"
+          ></div>
+        </div>
+      </div>
     </div>
   </aside>
 </template>
 
 <script setup>
-import { ref, onMounted, h } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/services/api'
 
 const authStore = useAuthStore()
+const route = useRoute()
 const streak = ref(0)
 
-// Icones simples en SVG
-const HomeIcon = { render: () => h('svg', { class: 'w-5 h-5', fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' }, [h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' })]) }
-const BookIcon = { render: () => h('svg', { class: 'w-5 h-5', fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' }, [h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253' })]) }
-const CodeIcon = { render: () => h('svg', { class: 'w-5 h-5', fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' }, [h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4' })]) }
-const TrophyIcon = { render: () => h('svg', { class: 'w-5 h-5', fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' }, [h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z' })]) }
-const UserIcon = { render: () => h('svg', { class: 'w-5 h-5', fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' }, [h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' })]) }
-
 const menuItems = [
-  { path: '/dashboard', label: 'Dashboard', icon: HomeIcon },
-  { path: '/courses', label: 'Cours', icon: BookIcon },
-  { path: '/challenge', label: 'Defi du jour', icon: CodeIcon },
-  { path: '/quizzes', label: 'Quiz', icon: TrophyIcon },
-  { path: '/profile', label: 'Profil', icon: UserIcon }
+  { path: '/dashboard', label: 'Dashboard', icon: '🏠' },
+  { path: '/courses',   label: 'Cours',     icon: '📚' },
+  { path: '/challenge', label: 'Défi du jour', icon: '⚡' },
+  { path: '/quizzes',   label: 'Quiz',      icon: '🧠' },
+  { path: '/profile',   label: 'Profil',    icon: '👤' },
 ]
+
+// Barre XP : XP dans le niveau courant (approximatif : 500 XP par niveau)
+const XP_PER_LEVEL = 500
+const xpBarWidth = computed(() => {
+  const xpInLevel = authStore.xp % XP_PER_LEVEL
+  return Math.min(100, Math.round((xpInLevel / XP_PER_LEVEL) * 100))
+})
+
+function isActive(path) {
+  return route.path === path || route.path.startsWith(path + '/')
+}
 
 async function fetchStreak() {
   if (!authStore.isAuthenticated || !authStore.user?.id) return
