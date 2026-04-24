@@ -2,13 +2,16 @@
   <MainLayout>
     <div class="max-w-6xl mx-auto">
       <!-- Navigation retour -->
-      <div class="mb-5">
+      <div class="mb-5 flex items-center justify-between">
         <button
           @click="$router.back()"
           class="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800 font-medium transition-colors"
         >
           ← Retour
         </button>
+        <div v-if="lessonExercises.length > 1" class="text-sm text-gray-400">
+          Exercice {{ currentIndex + 1 }} / {{ lessonExercises.length }}
+        </div>
       </div>
 
       <div v-if="loading" class="text-center py-12">
@@ -102,16 +105,33 @@
             </button>
           </div>
 
-          <!-- Toast XP -->
+          <!-- Toast XP + navigation suivant -->
           <transition name="fade">
-            <div
-              v-if="xpToast"
-              class="flex items-center gap-3 bg-yellow-50 border border-yellow-300 text-yellow-800 px-4 py-3 rounded-xl font-semibold"
-            >
-              <span class="text-2xl">⭐</span>
-              <div>
-                <div>Exercice réussi !</div>
-                <div class="text-sm font-normal">+{{ exercise?.xpReward }} XP gagnés</div>
+            <div v-if="xpToast" class="space-y-3">
+              <div class="flex items-center gap-3 bg-yellow-50 border border-yellow-300 text-yellow-800 px-4 py-3 rounded-xl font-semibold">
+                <span class="text-2xl">⭐</span>
+                <div>
+                  <div>Exercice réussi !</div>
+                  <div class="text-sm font-normal">+{{ exercise?.xpReward }} XP gagnés</div>
+                </div>
+              </div>
+
+              <!-- Navigation suivant -->
+              <div class="flex gap-3">
+                <router-link
+                  v-if="nextExercise"
+                  :to="`/exercises/${nextExercise.id}`"
+                  class="flex-1 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors text-center"
+                >
+                  Exercice suivant →
+                </router-link>
+                <router-link
+                  v-else-if="exercise?.lessonId"
+                  :to="`/lessons/${exercise.lessonId}`"
+                  class="flex-1 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors text-center"
+                >
+                  Retour à la leçon ✓
+                </router-link>
               </div>
             </div>
           </transition>
@@ -149,6 +169,7 @@ const route = useRoute()
 const authStore = useAuthStore()
 
 const exercise = ref(null)
+const lessonExercises = ref([])
 const code = ref('')
 const output = ref('')
 const outputSuccess = ref(false)
@@ -185,6 +206,19 @@ const parsedHints = computed(() => {
   }
 })
 
+const currentIndex = computed(() => {
+  if (!exercise.value || !lessonExercises.value.length) return 0
+  return lessonExercises.value.findIndex(e => e.id === exercise.value.id)
+})
+
+const nextExercise = computed(() => {
+  const idx = currentIndex.value
+  if (idx >= 0 && idx < lessonExercises.value.length - 1) {
+    return lessonExercises.value[idx + 1]
+  }
+  return null
+})
+
 function handleTab(event) {
   const textarea = event.target
   const start = textarea.selectionStart
@@ -200,6 +234,12 @@ async function fetchExercise() {
     const response = await api.get(`/exercises/${route.params.exerciseId}`)
     exercise.value = response.data
     code.value = response.data.starterCode || ''
+
+    // Charger les autres exercices de la même leçon pour la navigation
+    if (response.data.lessonId) {
+      const listRes = await api.get(`/exercises/lesson/${response.data.lessonId}`)
+      lessonExercises.value = listRes.data
+    }
   } catch (error) {
     console.error('Erreur chargement exercice:', error)
   } finally {
@@ -234,7 +274,7 @@ async function submitCode() {
       })
       output.value += '\n\nBravo ! Exercice complete !'
       xpToast.value = true
-      setTimeout(() => { xpToast.value = false }, 5000)
+      setTimeout(() => { xpToast.value = false }, 8000)
       const progress = await api.get(`/gamification/progress/${authStore.user.id}`)
       authStore.setProgress(progress.data.totalXp, progress.data.currentLevel)
     } catch (error) {
