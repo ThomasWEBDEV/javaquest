@@ -17,20 +17,16 @@ import java.util.concurrent.*;
 @Service
 public class JShellService {
 
-    private static final int TIMEOUT_SECONDS = 5;
+    private static final int TIMEOUT_SECONDS = 10;
     private static final int MAX_OUTPUT_LENGTH = 10000;
+    // System.out est global : on synchronise pour eviter les interferences entre requetes concurrentes
+    private static final Object SYSTEM_OUT_LOCK = new Object();
 
-    /**
-     * Execute du code Java et retourne le resultat.
-     *
-     * @param code Le code Java a executer
-     * @return Le resultat de l'execution
-     */
-    public ExecutionResult execute(String code) {
+    public ExecutionResult execute(String code, String testCode) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
 
         try {
-            Future<ExecutionResult> future = executor.submit(() -> executeCode(code));
+            Future<ExecutionResult> future = executor.submit(() -> executeCode(code, testCode));
             return future.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
         } catch (TimeoutException e) {
@@ -48,78 +44,119 @@ public class JShellService {
         }
     }
 
-    /**
-     * Execute le code dans JShell.
-     */
-    private ExecutionResult executeCode(String code) {
+    private ExecutionResult executeCode(String code, String testCode) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         PrintStream printStream = new PrintStream(outputStream);
-
         long startTime = System.currentTimeMillis();
 
-        try (JShell jshell = JShell.builder()
-                .out(printStream)
-                .err(printStream)
-                .build()) {
+        synchronized (SYSTEM_OUT_LOCK) {
+            PrintStream originalOut = System.out;
+            PrintStream originalErr = System.err;
+            System.setOut(printStream);
+            System.setErr(printStream);
 
-            StringBuilder resultBuilder = new StringBuilder();
-            boolean hasErrors = false;
+            try (JShell jshell = JShell.builder()
+                    .out(printStream)
+                    .err(printStream)
+                    .build()) {
 
-            // Execute le code
-            List<SnippetEvent> events = jshell.eval(code);
+                StringBuilder errorBuilder = new StringBuilder();
+                boolean hasErrors = false;
 
-            for (SnippetEvent event : events) {
-                // Verifie les erreurs de compilation
-                List<Diag> diagnostics = jshell.diagnostics(event.snippet()).toList();
-                for (Diag diag : diagnostics) {
-                    if (diag.isError()) {
+                // Evalue le code utilisateur (definition de classe)
+                List<SnippetEvent> events = jshell.eval(code);
+                for (SnippetEvent event : events) {
+                    List<Diag> diagnostics = jshell.diagnostics(event.snippet()).toList();
+                    for (Diag diag : diagnostics) {
+                        if (diag.isError()) {
+                            hasErrors = true;
+                            errorBuilder.append("Erreur ligne ")
+                                    .append(diag.getStartPosition())
+                                    .append(": ")
+                                    .append(diag.getMessage(null))
+                                    .append("\n");
+                        }
+                    }
+                    if (event.exception() != null) {
                         hasErrors = true;
-                        resultBuilder.append("Erreur ligne ")
-                                .append(diag.getStartPosition())
-                                .append(": ")
-                                .append(diag.getMessage(null))
+                        errorBuilder.append("Exception: ")
+                                .append(event.exception().getMessage())
                                 .append("\n");
                     }
                 }
 
-                // Recupere la valeur de retour si presente
-                if (event.value() != null && !event.value().isEmpty()) {
-                    resultBuilder.append(event.value()).append("\n");
+                if (!hasErrors) {
+                    // JShell ne execute pas main() automatiquement — on l'appelle explicitement.
+                    // Les erreurs de compilation ici (ex: classe Main absente) sont ignorees silencieusement.
+                    List<SnippetEvent> mainEvents = jshell.eval("Main.main(new String[]{});");
+                    for (SnippetEvent event : mainEvents) {
+                        if (event.exception() != null) {
+                            hasErrors = true;
+                            errorBuilder.append("Exception: ")
+                                    .append(event.exception().getMessage())
+                                    .append("\n");
+                        }
+                    }
                 }
 
-                // Verifie les exceptions
-                if (event.exception() != null) {
-                    hasErrors = true;
-                    resultBuilder.append("Exception: ")
-                            .append(event.exception().getMessage())
-                            .append("\n");
+                printStream.flush();
+                String consoleOutput = outputStream.toString().trim();
+                long executionTime = System.currentTimeMillis() - startTime;
+
+                if (hasErrors) {
+                    String errorMsg = errorBuilder.toString().trim();
+                    return ExecutionResult.error(truncateOutput(errorMsg.isEmpty() ? consoleOutput : errorMsg), executionTime);
                 }
+
+                String output = truncateOutput(consoleOutput);
+
+                // Verifie le testCode si fourni (ex: output.contains("Hello"))
+                if (testCode != null && !testCode.isBlank()) {
+                    boolean testPassed = evaluateTestCode(jshell, output, testCode);
+                    if (!testPassed) {
+                        return ExecutionResult.error(output, executionTime);
+                    }
+                }
+
+                return ExecutionResult.success(output, executionTime);
+
+            } catch (Exception e) {
+                long executionTime = System.currentTimeMillis() - startTime;
+                return ExecutionResult.error("Erreur : " + e.getMessage(), executionTime);
+            } finally {
+                System.setOut(originalOut);
+                System.setErr(originalErr);
             }
-
-            // Ajoute la sortie standard
-            String consoleOutput = outputStream.toString();
-            if (!consoleOutput.isEmpty()) {
-                resultBuilder.append(consoleOutput);
-            }
-
-            long executionTime = System.currentTimeMillis() - startTime;
-            String output = truncateOutput(resultBuilder.toString());
-
-            if (hasErrors) {
-                return ExecutionResult.error(output, executionTime);
-            }
-
-            return ExecutionResult.success(output, executionTime);
-
-        } catch (Exception e) {
-            long executionTime = System.currentTimeMillis() - startTime;
-            return ExecutionResult.error("Erreur : " + e.getMessage(), executionTime);
         }
     }
 
     /**
-     * Tronque la sortie si elle depasse la limite.
+     * Evalue le testCode (ex: output.contains("X") && output.contains("Y"))
+     * en injectant la variable output dans JShell.
      */
+    private boolean evaluateTestCode(JShell jshell, String actualOutput, String testCode) {
+        try {
+            String escaped = actualOutput
+                    .replace("\\", "\\\\")
+                    .replace("\"", "\\\"")
+                    .replace("\n", "\\n")
+                    .replace("\r", "\\r")
+                    .replace("\t", "\\t");
+
+            jshell.eval("String output = \"" + escaped + "\";");
+            List<SnippetEvent> testEvents = jshell.eval(testCode + ";");
+
+            for (SnippetEvent event : testEvents) {
+                if (event.exception() != null) return false;
+                if ("true".equals(event.value())) return true;
+                if ("false".equals(event.value())) return false;
+            }
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     private String truncateOutput(String output) {
         if (output.length() > MAX_OUTPUT_LENGTH) {
             return output.substring(0, MAX_OUTPUT_LENGTH) + "\n... (sortie tronquee)";

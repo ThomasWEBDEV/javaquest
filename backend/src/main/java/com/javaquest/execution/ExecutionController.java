@@ -2,6 +2,8 @@ package com.javaquest.execution;
 
 import com.javaquest.dashboard.DashboardService;
 import com.javaquest.dashboard.ExerciseAttemptResult;
+import com.javaquest.exercise.Exercise;
+import com.javaquest.exercise.ExerciseRepository;
 import com.javaquest.user.User;
 import com.javaquest.user.UserRepository;
 import jakarta.validation.Valid;
@@ -23,13 +25,16 @@ public class ExecutionController {
     private final CodeValidator codeValidator;
     private final DashboardService dashboardService;
     private final UserRepository userRepository;
+    private final ExerciseRepository exerciseRepository;
 
     public ExecutionController(JShellService jshellService, CodeValidator codeValidator,
-                               DashboardService dashboardService, UserRepository userRepository) {
+                               DashboardService dashboardService, UserRepository userRepository,
+                               ExerciseRepository exerciseRepository) {
         this.jshellService = jshellService;
         this.codeValidator = codeValidator;
         this.dashboardService = dashboardService;
         this.userRepository = userRepository;
+        this.exerciseRepository = exerciseRepository;
     }
 
     /**
@@ -49,8 +54,16 @@ public class ExecutionController {
             ));
         }
 
+        // Recupere le testCode de l'exercice si un exerciceId est fourni
+        String testCode = null;
+        if (request.exerciseId() != null) {
+            testCode = exerciseRepository.findById(request.exerciseId())
+                    .map(Exercise::getTestCode)
+                    .orElse(null);
+        }
+
         // Execute le code
-        ExecutionResult result = jshellService.execute(request.code());
+        ExecutionResult result = jshellService.execute(request.code(), testCode);
 
         // Si un exercice est associe et l'utilisateur est authentifie, enregistre la tentative
         if (request.exerciseId() != null && authentication != null) {
