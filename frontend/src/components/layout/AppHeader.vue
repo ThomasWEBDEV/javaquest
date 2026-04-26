@@ -1,65 +1,67 @@
 <template>
-  <header class="bg-white shadow-sm border-b border-gray-200">
+  <header class="bg-white/90 backdrop-blur-sm sticky top-0 z-30 border-b border-gray-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <!-- Logo -->
-        <router-link to="/" class="flex items-center space-x-2">
-          <span class="text-2xl font-bold text-indigo-600">JavaQuest</span>
+        <router-link to="/" class="flex items-center gap-2 group">
+          <span class="text-xl">☕</span>
+          <span class="text-xl font-extrabold text-gray-900 tracking-tight group-hover:text-indigo-600 transition-colors">
+            Java<span class="text-indigo-600 group-hover:text-indigo-700">Quest</span>
+          </span>
         </router-link>
 
         <!-- Navigation -->
-        <nav class="hidden md:flex items-center space-x-6">
-          <router-link 
-            to="/courses" 
-            class="text-gray-600 hover:text-indigo-600 transition-colors"
+        <nav class="hidden md:flex items-center gap-1">
+          <router-link
+            v-for="item in navItems"
+            :key="item.path"
+            :to="item.path"
+            class="px-4 py-2 rounded-xl text-sm font-medium transition-colors"
+            :class="isActive(item.path)
+              ? 'bg-indigo-50 text-indigo-700'
+              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'"
           >
-            Cours
-          </router-link>
-          <router-link 
-            to="/quizzes" 
-            class="text-gray-600 hover:text-indigo-600 transition-colors"
-          >
-            Quiz
-          </router-link>
-          <router-link 
-            to="/challenge" 
-            class="text-gray-600 hover:text-indigo-600 transition-colors"
-          >
-            Defi du jour
+            {{ item.label }}
           </router-link>
         </nav>
 
-        <!-- User Menu -->
-        <div class="flex items-center space-x-4">
+        <!-- User zone -->
+        <div class="flex items-center gap-3">
           <template v-if="authStore.isAuthenticated">
-            <div class="flex items-center space-x-2 text-sm">
-              <span class="text-yellow-500 font-semibold">{{ authStore.xp }} XP</span>
-              <span class="text-gray-400">|</span>
-              <span class="text-indigo-600 font-semibold">Niv. {{ authStore.level }}</span>
+            <!-- XP + niveau compact -->
+            <div class="hidden sm:flex items-center gap-1.5 bg-gray-50 rounded-xl px-3 py-1.5 text-sm">
+              <span class="text-yellow-500 font-bold">{{ authStore.xp }}</span>
+              <span class="text-gray-300">XP</span>
+              <span class="w-px h-3 bg-gray-200 mx-0.5"></span>
+              <span class="text-indigo-600 font-bold">Niv. {{ authStore.level }}</span>
             </div>
-            <router-link 
-              to="/dashboard"
-              class="px-4 py-2 text-sm font-medium text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+
+            <!-- Avatar avec initiale -->
+            <router-link
+              to="/profile"
+              class="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-sm hover:opacity-90 transition-opacity"
+              :title="authStore.user?.username"
             >
-              Dashboard
+              {{ authStore.user?.username?.charAt(0).toUpperCase() || '?' }}
             </router-link>
-            <button 
+
+            <button
               @click="logout"
-              class="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              class="px-3 py-2 text-xs font-medium text-gray-500 hover:bg-gray-100 rounded-xl transition-colors"
             >
-              Deconnexion
+              Déco
             </button>
           </template>
           <template v-else>
-            <router-link 
+            <router-link
               to="/login"
-              class="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              class="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-xl transition-colors"
             >
               Connexion
             </router-link>
-            <router-link 
+            <router-link
               to="/register"
-              class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors"
+              class="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors"
             >
               S'inscrire
             </router-link>
@@ -72,12 +74,24 @@
 
 <script setup>
 import { onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/services/api'
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
+
+const navItems = [
+  { path: '/courses',   label: 'Cours' },
+  { path: '/quizzes',   label: 'Quiz' },
+  { path: '/challenge', label: 'Défi du jour' },
+  { path: '/dashboard', label: 'Dashboard' },
+]
+
+function isActive(path) {
+  return route.path === path || route.path.startsWith(path + '/')
+}
 
 async function fetchProgress() {
   if (!authStore.isAuthenticated || !authStore.user?.id) return
