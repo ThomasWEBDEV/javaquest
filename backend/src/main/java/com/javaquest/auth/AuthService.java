@@ -58,7 +58,7 @@ public class AuthService {
         // Génère le token JWT
         String token = jwtService.generateToken(user.getUsername());
 
-        return AuthResponse.success(token, user.getUsername(), user.getEmail());
+        return AuthResponse.success(user.getId(), token, user.getUsername(), user.getEmail());
     }
 
     /**
@@ -91,6 +91,15 @@ public class AuthService {
         // Génère le token JWT
         String token = jwtService.generateToken(user.getUsername());
 
-        return AuthResponse.success(token, user.getUsername(), user.getEmail());
+        return AuthResponse.success(user.getId(), token, user.getUsername(), user.getEmail());
+    }
+
+    /**
+     * Retourne les informations de l'utilisateur courant par son username.
+     */
+    public AuthResponse getCurrentUser(String username) {
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new AuthException("Utilisateur non trouve"));
+        return AuthResponse.success(user.getId(), null, user.getUsername(), user.getEmail());
     }
 }

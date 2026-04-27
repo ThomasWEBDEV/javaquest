@@ -5,6 +5,7 @@ package com.javaquest.auth;
  * Retourne le token JWT et les informations utilisateur.
  */
 public record AuthResponse(
+    Long userId,
     String token,
     String username,
     String email,
@@ -13,7 +14,7 @@ public record AuthResponse(
     /**
      * Crée une réponse de succès.
      */
-    public static AuthResponse success(String token, String username, String email) {
-        return new AuthResponse(token, username, email, "Authentification réussie");
+    public static AuthResponse success(Long userId, String token, String username, String email) {
+        return new AuthResponse(userId, token, username, email, "Authentification réussie");
     }
 }
