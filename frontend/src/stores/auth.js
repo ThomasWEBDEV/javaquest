@@ -15,6 +15,7 @@ export const useAuthStore = defineStore('auth', () => {
       const response = await api.post('/auth/login', { username, password })
       token.value = response.data.token
       user.value = {
+        id: response.data.userId,
         username: response.data.username,
         email: response.data.email
       }
@@ -33,6 +34,7 @@ export const useAuthStore = defineStore('auth', () => {
       const response = await api.post('/auth/register', { username, email, password })
       token.value = response.data.token
       user.value = {
+        id: response.data.userId,
         username: response.data.username,
         email: response.data.email
       }
@@ -63,7 +65,11 @@ export const useAuthStore = defineStore('auth', () => {
     if (!token.value) return
     try {
       const response = await api.get('/auth/me')
-      user.value = response.data
+      user.value = {
+        id: response.data.userId,
+        username: response.data.username,
+        email: response.data.email
+      }
     } catch (error) {
       logout()
     }
