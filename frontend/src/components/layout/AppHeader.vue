@@ -73,7 +73,7 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/services/api'
@@ -108,7 +108,8 @@ function logout() {
   router.push('/login')
 }
 
-onMounted(() => {
-  fetchProgress()
-})
+// Charge le progress quand user est disponible (gere le refresh et la connexion)
+watch(() => authStore.user?.id, (userId) => {
+  if (userId) fetchProgress()
+}, { immediate: true })
 </script>
