@@ -284,6 +284,7 @@ async function fetchQuiz() {
 }
 
 async function submitQuiz() {
+  if (submitting.value) return
   if (timerInterval) clearInterval(timerInterval)
   submitting.value = true
   try {
