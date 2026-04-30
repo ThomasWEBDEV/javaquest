@@ -1,6 +1,7 @@
 package com.javaquest.quiz;
 
 import com.javaquest.dashboard.DashboardService;
+import com.javaquest.dashboard.UserQuizAttempt;
 import com.javaquest.user.User;
 import com.javaquest.user.UserRepository;
 import jakarta.validation.Valid;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Controller REST pour la gestion des quiz.
@@ -174,12 +176,26 @@ public class QuizController {
         QuizResultDto result = submissionService.submitQuiz(id, request);
 
         if (authentication != null) {
-            userRepository.findByUsername(authentication.getName()).ifPresent(user ->
+            Optional<User> userOpt = userRepository.findByUsername(authentication.getName());
+            if (userOpt.isPresent()) {
+                User user = userOpt.get();
+
+                // Vérifier si le quiz était déjà réussi AVANT d'enregistrer la tentative
+                UserQuizAttempt best = dashboardService.getBestQuizAttempt(user.getId(), id);
+                boolean alreadyPassed = best != null && Boolean.TRUE.equals(best.getPassed());
+
                 dashboardService.recordQuizAttempt(
                     user.getId(), id, result.score(), result.correctAnswers(),
                     result.totalQuestions(), result.passed(), result.xpEarned()
-                )
-            );
+                );
+
+                // Si déjà réussi, corriger xpEarned dans la réponse car l'XP n'a pas été accordé
+                if (result.passed() && alreadyPassed) {
+                    result = new QuizResultDto(result.quizId(), result.totalQuestions(),
+                        result.correctAnswers(), result.score(), result.passed(), 0,
+                        result.questionResults());
+                }
+            }
         }
 
         return ResponseEntity.ok(result);
