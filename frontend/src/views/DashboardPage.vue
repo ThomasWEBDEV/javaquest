@@ -160,7 +160,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import MainLayout from '@/components/layout/MainLayout.vue'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/services/api'
@@ -216,9 +216,15 @@ async function fetchExercisesInProgress() {
   }
 }
 
+// Déclenche le chargement dès que user est disponible (gère le refresh de page)
+watch(() => authStore.user?.id, (userId) => {
+  if (userId) {
+    fetchDashboard()
+    fetchExercisesInProgress()
+  }
+}, { immediate: true })
+
 onMounted(() => {
-  fetchDashboard()
   fetchTodayChallenge()
-  fetchExercisesInProgress()
 })
 </script>

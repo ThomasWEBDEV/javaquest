@@ -148,7 +148,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import MainLayout from '@/components/layout/MainLayout.vue'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/services/api'
@@ -217,9 +217,12 @@ function badgeIcon(criteriaType) {
   }
 }
 
-onMounted(() => {
-  fetchStats()
-  fetchBadges()
-  fetchQuizHistory()
-})
+// Déclenche le chargement dès que user est disponible (gère le refresh de page)
+watch(() => authStore.user?.id, (userId) => {
+  if (userId) {
+    fetchStats()
+    fetchBadges()
+    fetchQuizHistory()
+  }
+}, { immediate: true })
 </script>

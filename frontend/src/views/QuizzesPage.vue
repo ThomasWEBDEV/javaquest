@@ -46,7 +46,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import MainLayout from '@/components/layout/MainLayout.vue'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/services/api'
@@ -85,8 +85,12 @@ async function fetchQuizHistory() {
   }
 }
 
-onMounted(async () => {
-  await fetchQuizzes()
-  fetchQuizHistory()
+onMounted(() => {
+  fetchQuizzes()
 })
+
+// Déclenche le chargement de l'historique dès que user est disponible (gère le refresh de page)
+watch(() => authStore.user?.id, (userId) => {
+  if (userId) fetchQuizHistory()
+}, { immediate: true })
 </script>
