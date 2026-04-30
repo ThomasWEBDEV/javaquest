@@ -182,7 +182,7 @@ const loadingStats = ref(true)
 
 const progressPercent = computed(() => {
   const xpInLevel = 1000 - stats.value.xpForNextLevel
-  return Math.round((xpInLevel / 1000) * 100)
+  return Math.max(0, Math.min(100, Math.round((xpInLevel / 1000) * 100)))
 })
 
 async function fetchDashboard() {
