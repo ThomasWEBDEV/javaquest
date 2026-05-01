@@ -86,11 +86,20 @@
             ></textarea>
           </div>
 
+          <!-- Bannière déjà complété -->
+          <div v-if="alreadyCompleted" class="flex items-center gap-3 bg-green-50 border border-green-300 text-green-800 px-4 py-3 rounded-xl font-semibold">
+            <span class="text-2xl">✓</span>
+            <div>
+              <div>Exercice déjà complété !</div>
+              <div class="text-sm font-normal">Vous avez déjà réussi cet exercice.</div>
+            </div>
+          </div>
+
           <!-- Boutons -->
           <div class="flex gap-3">
             <button
               @click="runCode()"
-              :disabled="executing"
+              :disabled="executing || alreadyCompleted"
               class="flex-1 py-3 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 active:bg-emerald-800 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               <span v-if="executing" class="animate-spin">⟳</span>
@@ -98,7 +107,7 @@
             </button>
             <button
               @click="submitCode"
-              :disabled="executing"
+              :disabled="executing || alreadyCompleted"
               class="flex-1 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 active:bg-indigo-800 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               ✓ Soumettre
@@ -176,6 +185,7 @@ const outputSuccess = ref(false)
 const loading = ref(true)
 const executing = ref(false)
 const xpToast = ref(false)
+const alreadyCompleted = ref(false)
 const editorRef = ref(null)
 
 const difficultyClass = computed(() => {
@@ -239,6 +249,18 @@ async function fetchExercise() {
     if (response.data.lessonId) {
       const listRes = await api.get(`/exercises/lesson/${response.data.lessonId}`)
       lessonExercises.value = listRes.data
+    }
+
+    // Vérifier si l'exercice est déjà complété
+    if (authStore.user?.id) {
+      try {
+        const progressRes = await api.get(`/dashboard/${authStore.user.id}/exercises/${route.params.exerciseId}/progress`)
+        if (progressRes.data?.status === 'COMPLETED') {
+          alreadyCompleted.value = true
+        }
+      } catch {
+        // Pas encore de progression
+      }
     }
   } catch (error) {
     console.error('Erreur chargement exercice:', error)
