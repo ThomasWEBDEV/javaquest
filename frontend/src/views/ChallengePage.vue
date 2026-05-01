@@ -180,8 +180,11 @@ async function fetchChallenge() {
     code.value = response.data.starterCode || ''
     
     if (authStore.user?.id) {
-      await startChallenge()
       await fetchUserChallenge()
+      if (!userChallenge.value || userChallenge.value.status !== 'COMPLETED') {
+        await startChallenge()
+        await fetchUserChallenge()
+      }
     }
   } catch (error) {
     console.error('Pas de defi aujourd\'hui')
