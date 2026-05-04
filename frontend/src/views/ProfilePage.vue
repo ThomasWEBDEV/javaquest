@@ -1,148 +1,111 @@
 <template>
   <MainLayout>
-    <div class="max-w-4xl mx-auto">
+    <div class="profile">
 
-      <div v-if="loading" class="space-y-5">
-        <!-- Skeleton hero -->
-        <div class="bg-white rounded-2xl border border-gray-100 p-8 animate-pulse">
-          <div class="flex items-center gap-6">
-            <div class="w-20 h-20 bg-gray-200 rounded-2xl shrink-0"></div>
-            <div class="flex-1">
-              <div class="h-7 bg-gray-200 rounded-lg w-48 mb-2"></div>
-              <div class="h-4 bg-gray-100 rounded w-64 mb-4"></div>
-              <div class="h-2.5 bg-gray-100 rounded-full"></div>
-            </div>
-          </div>
-        </div>
-        <div class="grid grid-cols-4 gap-4">
-          <div v-for="i in 4" :key="i" class="bg-white rounded-2xl border border-gray-100 p-5 animate-pulse">
-            <div class="h-8 bg-gray-200 rounded-lg mb-2"></div>
-            <div class="h-4 bg-gray-100 rounded w-20 mx-auto"></div>
-          </div>
+      <!-- Skeleton -->
+      <div v-if="loading" class="profile-skeleton">
+        <div class="skeleton-hero"></div>
+        <div class="skeleton-grid">
+          <div v-for="i in 4" :key="i" class="skeleton-stat"></div>
         </div>
       </div>
 
-      <div v-else>
+      <template v-else>
+
         <!-- Hero profil -->
-        <div class="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl p-8 mb-6 text-white">
-          <div class="flex items-center gap-6">
-            <div class="w-20 h-20 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center shrink-0">
-              <span class="text-4xl font-extrabold text-white">
-                {{ authStore.user?.username?.charAt(0).toUpperCase() }}
-              </span>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="text-indigo-200 text-sm font-medium mb-1">Niveau {{ stats.currentLevel }}</div>
-              <h1 class="text-2xl font-bold truncate">{{ authStore.user?.username }}</h1>
-              <p class="text-indigo-300 text-sm truncate">{{ authStore.user?.email }}</p>
-              <div class="mt-4">
-                <div class="flex justify-between text-xs text-indigo-300 mb-1">
-                  <span>{{ stats.totalXp }} XP</span>
-                  <span>{{ stats.xpForNextLevel }} XP pour niveau {{ stats.currentLevel + 1 }}</span>
-                </div>
-                <div class="w-full bg-white/20 rounded-full h-2 overflow-hidden">
-                  <div
-                    class="bg-yellow-400 h-2 rounded-full transition-all duration-700"
-                    :style="{ width: progressPercent + '%' }"
-                  ></div>
-                </div>
+        <div class="profile-hero">
+          <div class="avatar">
+            <span class="avatar-letter">{{ authStore.user?.username?.charAt(0).toUpperCase() }}</span>
+          </div>
+          <div class="profile-info">
+            <p class="profile-eyebrow">Niveau {{ stats.currentLevel }}</p>
+            <h1 class="profile-name">{{ authStore.user?.username }}</h1>
+            <p class="profile-email">{{ authStore.user?.email }}</p>
+            <div class="profile-progress">
+              <div class="progress-labels">
+                <span>{{ stats.totalXp.toLocaleString() }} XP</span>
+                <span>{{ stats.xpForNextLevel }} XP pour niv. {{ stats.currentLevel + 1 }}</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" :style="{ width: progressPercent + '%' }"></div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Stats grid -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div class="bg-white rounded-2xl border border-gray-100 p-5 text-center hover:shadow-sm transition-shadow">
-            <div class="text-2xl mb-1">💪</div>
-            <div class="text-2xl font-bold text-green-600">{{ stats.exercisesCompleted }}</div>
-            <div class="text-xs text-gray-400 mt-1">Exercices</div>
+        <div class="stats-grid">
+          <div class="stat-tile stat-green">
+            <div class="stat-val">{{ stats.exercisesCompleted }}</div>
+            <div class="stat-lbl">Exercices</div>
           </div>
-          <div class="bg-white rounded-2xl border border-gray-100 p-5 text-center hover:shadow-sm transition-shadow">
-            <div class="text-2xl mb-1">🧠</div>
-            <div class="text-2xl font-bold text-blue-600">{{ stats.quizzesPassed }}</div>
-            <div class="text-xs text-gray-400 mt-1">Quiz reussis</div>
+          <div class="stat-tile stat-accent">
+            <div class="stat-val">{{ stats.quizzesPassed }}</div>
+            <div class="stat-lbl">Quiz reussis</div>
           </div>
-          <div class="bg-white rounded-2xl border border-gray-100 p-5 text-center hover:shadow-sm transition-shadow">
-            <div class="text-2xl mb-1">🔥</div>
-            <div class="text-2xl font-bold text-orange-500">{{ stats.currentStreak }}</div>
-            <div class="text-xs text-gray-400 mt-1">Serie actuelle</div>
+          <div class="stat-tile stat-orange">
+            <div class="stat-val">{{ stats.currentStreak }}<span class="stat-unit">j</span></div>
+            <div class="stat-lbl">Serie actuelle</div>
           </div>
-          <div class="bg-white rounded-2xl border border-gray-100 p-5 text-center hover:shadow-sm transition-shadow">
-            <div class="text-2xl mb-1">🏅</div>
-            <div class="text-2xl font-bold text-purple-600">{{ stats.longestStreak }}</div>
-            <div class="text-xs text-gray-400 mt-1">Meilleure serie</div>
+          <div class="stat-tile stat-amber">
+            <div class="stat-val">{{ stats.longestStreak }}<span class="stat-unit">j</span></div>
+            <div class="stat-lbl">Meilleure serie</div>
           </div>
         </div>
 
         <!-- Badges -->
-        <div class="bg-white rounded-2xl border border-gray-100 p-6 mb-6">
-          <div class="flex items-center justify-between mb-5">
-            <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-              <span class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center text-sm">🏆</span>
-              Mes Badges
-            </h2>
-            <span v-if="badges.length > 0" class="text-xs font-semibold text-gray-400 bg-gray-100 px-3 py-1 rounded-full">
-              {{ badges.length }} obtenu{{ badges.length > 1 ? 's' : '' }}
-            </span>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Badges</span>
+            <span v-if="badges.length" class="card-count">{{ badges.length }} obtenus</span>
           </div>
 
-          <div v-if="badges.length > 0" class="grid grid-cols-2 md:grid-cols-3 gap-3">
-            <div
-              v-for="badge in badges"
-              :key="badge.id"
-              class="relative bg-gradient-to-br from-yellow-50 to-amber-50 border border-yellow-200 rounded-2xl p-4 text-center hover:shadow-md transition-shadow"
-            >
-              <div class="text-3xl mb-2">{{ badgeIcon(badge.criteriaType) }}</div>
-              <div class="font-semibold text-gray-900 text-sm">{{ badge.name }}</div>
-              <div class="text-xs text-gray-500 mt-1 leading-tight">{{ badge.description }}</div>
-              <div v-if="badge.earnedAt" class="text-xs text-yellow-600 font-medium mt-2">
+          <div v-if="badges.length > 0" class="badges-grid">
+            <div v-for="badge in badges" :key="badge.id" class="badge-item">
+              <div class="badge-icon">{{ badgeIcon(badge.criteriaType) }}</div>
+              <div class="badge-name">{{ badge.name }}</div>
+              <div class="badge-desc">{{ badge.description }}</div>
+              <div v-if="badge.earnedAt" class="badge-date">
                 {{ new Date(badge.earnedAt).toLocaleDateString('fr-FR') }}
               </div>
             </div>
           </div>
-          <div v-else class="flex flex-col items-center py-10 text-gray-400">
-            <span class="text-4xl mb-3">🔒</span>
-            <p class="text-sm">Aucun badge pour le moment. Continuez a apprendre !</p>
+
+          <div v-else class="card-empty">
+            <div class="empty-glyph">◎</div>
+            <p>Aucun badge pour le moment — continuez a apprendre !</p>
           </div>
         </div>
 
         <!-- Historique Quiz -->
-        <div class="bg-white rounded-2xl border border-gray-100 p-6">
-          <h2 class="text-lg font-bold text-gray-900 mb-5 flex items-center gap-2">
-            <span class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center text-sm">📋</span>
-            Historique des Quiz
-          </h2>
-          <div v-if="quizHistory.length > 0" class="space-y-2">
-            <div
-              v-for="attempt in quizHistory"
-              :key="attempt.attemptedAt"
-              class="flex items-center justify-between p-4 bg-gray-50 hover:bg-indigo-50 rounded-xl transition-colors group"
-            >
-              <div>
-                <div class="font-medium text-gray-900 group-hover:text-indigo-700 transition-colors text-sm">{{ attempt.quizTitle }}</div>
-                <div class="text-xs text-gray-400 mt-0.5">
-                  {{ new Date(attempt.attemptedAt).toLocaleDateString('fr-FR') }}
-                </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Historique des Quiz</span>
+          </div>
+
+          <div v-if="quizHistory.length > 0" class="quiz-list">
+            <div v-for="attempt in quizHistory" :key="attempt.attemptedAt" class="quiz-row">
+              <div class="quiz-info">
+                <div class="quiz-title">{{ attempt.quizTitle }}</div>
+                <div class="quiz-date">{{ new Date(attempt.attemptedAt).toLocaleDateString('fr-FR') }}</div>
               </div>
-              <div class="text-right">
-                <div
-                  class="font-bold text-sm"
-                  :class="attempt.passed ? 'text-green-600' : 'text-red-500'"
-                >
+              <div class="quiz-result">
+                <div class="quiz-score" :class="attempt.passed ? 'score-pass' : 'score-fail'">
                   {{ attempt.score }}%
                 </div>
-                <div class="text-xs text-gray-400">{{ attempt.correctAnswers }}/{{ attempt.totalQuestions }}</div>
-                <div v-if="attempt.xpEarned > 0" class="text-xs text-yellow-600 font-semibold">+{{ attempt.xpEarned }} XP</div>
+                <div class="quiz-detail">{{ attempt.correctAnswers }}/{{ attempt.totalQuestions }}</div>
+                <div v-if="attempt.xpEarned > 0" class="quiz-xp">+{{ attempt.xpEarned }} XP</div>
               </div>
             </div>
           </div>
-          <div v-else class="flex flex-col items-center py-10 text-gray-400">
-            <span class="text-4xl mb-3">📝</span>
-            <p class="text-sm">Aucun quiz complete pour l'instant</p>
+
+          <div v-else class="card-empty">
+            <div class="empty-glyph">◎</div>
+            <p>Aucun quiz complete pour l'instant</p>
           </div>
         </div>
-      </div>
+
+      </template>
     </div>
   </MainLayout>
 </template>
@@ -207,17 +170,16 @@ async function fetchQuizHistory() {
 
 function badgeIcon(criteriaType) {
   switch (criteriaType) {
-    case 'XP_TOTAL': return '⭐'
-    case 'LEVEL_REACHED': return '🎯'
-    case 'EXERCISES_COMPLETED': return '💪'
-    case 'STREAK_DAYS': return '🔥'
-    case 'QUIZZES_PASSED': return '🧠'
-    case 'CHAPTERS_COMPLETED': return '📚'
-    default: return '🏆'
+    case 'XP_TOTAL': return '★'
+    case 'LEVEL_REACHED': return '◈'
+    case 'EXERCISES_COMPLETED': return '◆'
+    case 'STREAK_DAYS': return '◉'
+    case 'QUIZZES_PASSED': return '◇'
+    case 'CHAPTERS_COMPLETED': return '▣'
+    default: return '✦'
   }
 }
 
-// Déclenche le chargement dès que user est disponible (gère le refresh de page)
 watch(() => authStore.user?.id, (userId) => {
   if (userId) {
     fetchStats()
@@ -226,3 +188,307 @@ watch(() => authStore.user?.id, (userId) => {
   }
 }, { immediate: true })
 </script>
+
+<style scoped>
+.profile {
+  max-width: 820px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Skeleton */
+.profile-skeleton { display: flex; flex-direction: column; gap: 14px; }
+.skeleton-hero { height: 120px; border-radius: 16px; background: var(--c-surface); animation: pulse 1.4s ease infinite; }
+.skeleton-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.skeleton-stat { height: 80px; border-radius: 12px; background: var(--c-surface); animation: pulse 1.4s ease infinite; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Hero */
+.profile-hero {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 18px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 16px;
+  background: var(--c-accent-soft);
+  border: 1px solid var(--c-accent-glow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.avatar-letter {
+  font-family: var(--font-serif);
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--c-accent-light);
+  line-height: 1;
+}
+
+.profile-info { flex: 1; min-width: 0; }
+
+.profile-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--c-accent-light);
+  margin-bottom: 2px;
+}
+
+.profile-name {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--c-text);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.profile-email {
+  font-size: 12px;
+  color: var(--c-muted);
+  margin-bottom: 14px;
+  margin-top: 2px;
+}
+
+.profile-progress {}
+
+.progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--c-muted);
+  margin-bottom: 6px;
+}
+
+.progress-track {
+  height: 3px;
+  background: var(--c-surface-2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--c-accent);
+  border-radius: 2px;
+  transition: width 0.7s ease;
+}
+
+/* Stats grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.stat-tile {
+  border-radius: 13px;
+  padding: 16px 14px;
+  border: 1px solid var(--c-border);
+  text-align: center;
+}
+
+.stat-green  { background: var(--c-green-soft);  border-color: rgba(34, 197, 94, 0.15); }
+.stat-accent { background: var(--c-accent-soft);  border-color: var(--c-accent-glow); }
+.stat-orange { background: rgba(249, 115, 22, 0.06); border-color: rgba(249, 115, 22, 0.12); }
+.stat-amber  { background: var(--c-amber-soft);  border-color: rgba(245, 158, 11, 0.15); }
+
+.stat-val {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.stat-green  .stat-val { color: var(--c-green); }
+.stat-accent .stat-val { color: var(--c-accent-light); }
+.stat-orange .stat-val { color: var(--c-orange); }
+.stat-amber  .stat-val { color: var(--c-amber); }
+
+.stat-unit {
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 0.5;
+  margin-left: 1px;
+}
+
+.stat-lbl {
+  font-size: 11px;
+  color: var(--c-muted);
+  margin-top: 5px;
+}
+
+/* Cards */
+.card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 16px;
+  padding: 22px 24px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.card-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--c-text);
+  letter-spacing: -0.01em;
+}
+
+.card-count {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-muted);
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border);
+  padding: 3px 8px;
+  border-radius: 100px;
+}
+
+/* Badges */
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.badge-item {
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  padding: 16px 14px;
+  text-align: center;
+  transition: border-color var(--t);
+}
+
+.badge-item:hover { border-color: var(--c-amber); }
+
+.badge-icon {
+  font-size: 22px;
+  color: var(--c-amber);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.badge-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-text);
+  margin-bottom: 4px;
+}
+
+.badge-desc {
+  font-size: 11px;
+  color: var(--c-muted);
+  line-height: 1.5;
+}
+
+.badge-date {
+  font-size: 10px;
+  color: var(--c-subtle);
+  margin-top: 6px;
+  font-family: var(--font-mono);
+}
+
+/* Quiz history */
+.quiz-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.quiz-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 14px;
+  border-radius: 10px;
+  background: var(--c-surface-2);
+  transition: background var(--t);
+}
+
+.quiz-row:hover { background: var(--c-surface-hover); }
+
+.quiz-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--c-text);
+}
+
+.quiz-date {
+  font-size: 11px;
+  color: var(--c-muted);
+  margin-top: 2px;
+  font-family: var(--font-mono);
+}
+
+.quiz-result {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+}
+
+.quiz-score {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.score-pass { color: var(--c-green); }
+.score-fail { color: var(--c-red); }
+
+.quiz-detail {
+  font-size: 11px;
+  color: var(--c-muted);
+}
+
+.quiz-xp {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-amber);
+}
+
+/* Empty state */
+.card-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 0;
+  gap: 8px;
+}
+
+.empty-glyph {
+  font-size: 18px;
+  color: var(--c-subtle);
+}
+
+.card-empty p {
+  font-size: 13px;
+  color: var(--c-muted);
+}
+</style>
