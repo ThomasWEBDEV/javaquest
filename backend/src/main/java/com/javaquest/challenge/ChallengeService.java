@@ -38,10 +38,12 @@ public class ChallengeService {
     }
 
     /**
-     * Recupere le defi du jour.
+     * Recupere le defi du jour, ou le plus recent si aucun n'existe pour aujourd'hui.
      */
     public DailyChallenge getTodayChallenge() {
-        return challengeRepository.findByDate(LocalDate.now())
+        LocalDate today = LocalDate.now();
+        return challengeRepository.findByDate(today)
+            .or(() -> challengeRepository.findTopByDateLessThanEqualOrderByDateDesc(today))
             .orElseThrow(() -> new ChallengeException("Pas de defi disponible aujourd'hui"));
     }
 

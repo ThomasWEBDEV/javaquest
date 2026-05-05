@@ -27,4 +27,9 @@ public interface DailyChallengeRepository extends JpaRepository<DailyChallenge, 
      * Verifie si un defi existe pour une date.
      */
     boolean existsByDate(LocalDate date);
+
+    /**
+     * Recupere le defi le plus recent sur ou avant une date donnee.
+     */
+    Optional<DailyChallenge> findTopByDateLessThanEqualOrderByDateDesc(LocalDate date);
 }
