@@ -177,8 +177,20 @@ async function fetchChallenge() {
   try {
     const response = await api.get('/challenges/today')
     challenge.value = response.data
-    code.value = response.data.starterCode || ''
-    
+
+    if (response.data.starterCode) {
+      code.value = response.data.starterCode
+    } else if (response.data.exerciseId) {
+      try {
+        const exerciseResponse = await api.get(`/exercises/${response.data.exerciseId}`)
+        code.value = exerciseResponse.data.starterCode || ''
+      } catch (e) {
+        code.value = ''
+      }
+    } else {
+      code.value = ''
+    }
+
     if (authStore.user?.id) {
       await fetchUserChallenge()
       if (!userChallenge.value || userChallenge.value.status !== 'COMPLETED') {
