@@ -47,6 +47,9 @@ public class DailyChallenge {
     @Column(name = "bonus_xp", nullable = false)
     private Integer bonusXp = 50;
 
+    @Column(name = "exercise_id")
+    private Long exerciseId;
+
     @Column(name = "time_limit_minutes")
     private Integer timeLimitMinutes;
 
@@ -100,6 +103,8 @@ public class DailyChallenge {
     public void setXpReward(Integer xpReward) { this.xpReward = xpReward; }
     public Integer getBonusXp() { return bonusXp; }
     public void setBonusXp(Integer bonusXp) { this.bonusXp = bonusXp; }
+    public Long getExerciseId() { return exerciseId; }
+    public void setExerciseId(Long exerciseId) { this.exerciseId = exerciseId; }
     public Integer getTimeLimitMinutes() { return timeLimitMinutes; }
     public void setTimeLimitMinutes(Integer timeLimitMinutes) { this.timeLimitMinutes = timeLimitMinutes; }
     public LocalDateTime getCreatedAt() { return createdAt; }

@@ -18,6 +18,7 @@ public record DailyChallengeDto(
     Integer xpReward,
     Integer bonusXp,
     Integer timeLimitMinutes,
+    Long exerciseId,
     boolean isToday,
     boolean isExpired
 ) {
@@ -33,6 +34,7 @@ public record DailyChallengeDto(
             challenge.getXpReward(),
             challenge.getBonusXp(),
             challenge.getTimeLimitMinutes(),
+            challenge.getExerciseId(),
             challenge.isToday(),
             challenge.isExpired()
         );
