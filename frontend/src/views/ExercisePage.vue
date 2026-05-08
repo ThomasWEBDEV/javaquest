@@ -1,168 +1,135 @@
 <template>
   <MainLayout>
-    <div class="max-w-6xl mx-auto">
-      <!-- Navigation retour -->
-      <div class="mb-5 flex items-center justify-between">
-        <button
-          @click="$router.back()"
-          class="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800 font-medium transition-colors"
-        >
-          ← Retour
-        </button>
-        <div v-if="lessonExercises.length > 1" class="text-sm text-gray-400">
+    <div class="exercise-page">
+
+      <div class="exercise-top">
+        <button @click="$router.back()" class="btn-back">&#8592; Retour</button>
+        <span v-if="lessonExercises.length > 1" class="ex-counter">
           Exercice {{ currentIndex + 1 }} / {{ lessonExercises.length }}
-        </div>
+        </span>
       </div>
 
-      <div v-if="loading" class="text-center py-12">
-        <div class="animate-pulse text-gray-400">Chargement de l'exercice...</div>
-      </div>
+      <div v-if="loading" class="loading">Chargement de l'exercice...</div>
 
-      <div v-else-if="exercise" class="grid lg:grid-cols-2 gap-6 items-start">
-        <!-- Panneau instructions -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <div class="flex items-start justify-between mb-5 gap-3">
-            <h1 class="text-2xl font-bold text-gray-900 leading-tight">{{ exercise.title }}</h1>
-            <span
-              class="shrink-0 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide"
-              :class="difficultyClass"
-            >
+      <div v-else-if="exercise" class="exercise-grid">
+
+        <!-- Instructions -->
+        <div class="instructions-panel">
+          <div class="instructions-top">
+            <h1 class="exercise-title">{{ exercise.title }}</h1>
+            <span class="diff-badge" :class="`diff-${(exercise.difficulty || '').toLowerCase()}`">
               {{ difficultyLabel }}
             </span>
           </div>
 
-          <p class="text-gray-600 leading-relaxed mb-6">{{ exercise.description }}</p>
+          <p class="exercise-desc">{{ exercise.description }}</p>
 
-          <!-- Indices -->
-          <div v-if="parsedHints.length > 0" class="bg-amber-50 border border-amber-200 rounded-xl p-4">
-            <div class="flex items-center gap-2 mb-3">
-              <span class="text-amber-500 text-lg">💡</span>
-              <h3 class="font-semibold text-amber-800 text-sm uppercase tracking-wide">Indices</h3>
+          <div v-if="parsedHints.length > 0" class="hints-block">
+            <div class="hints-header">
+              <span class="hint-glyph">&#10022;</span>
+              <span class="hints-title">Indices</span>
             </div>
-            <ul class="space-y-2">
-              <li
-                v-for="(hint, i) in parsedHints"
-                :key="i"
-                class="flex items-start gap-2 text-amber-700 text-sm"
-              >
-                <span class="mt-1 w-4 h-4 shrink-0 rounded-full bg-amber-200 flex items-center justify-center text-xs font-bold text-amber-800">{{ i + 1 }}</span>
+            <ul class="hints-list">
+              <li v-for="(hint, i) in parsedHints" :key="i" class="hint-item">
+                <span class="hint-num">{{ i + 1 }}</span>
                 <span>{{ hint }}</span>
               </li>
             </ul>
           </div>
 
-          <div class="mt-6 pt-4 border-t border-gray-100 flex items-center gap-3">
-            <span class="px-3 py-1 bg-yellow-50 text-yellow-700 border border-yellow-200 rounded-full text-sm font-medium">
-              +{{ exercise.xpReward }} XP
-            </span>
+          <div class="instructions-footer">
+            <span class="xp-tag">+{{ exercise.xpReward }} XP</span>
           </div>
         </div>
 
-        <!-- Panneau éditeur -->
-        <div class="flex flex-col gap-4">
-          <!-- Barre d'outils éditeur -->
-          <div class="bg-gray-800 rounded-t-2xl px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <div class="w-3 h-3 rounded-full bg-red-500"></div>
-              <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-              <div class="w-3 h-3 rounded-full bg-green-500"></div>
+        <!-- Editor -->
+        <div class="editor-panel">
+
+          <div class="window-bar">
+            <div class="window-dots">
+              <span class="dot-r"></span>
+              <span class="dot-y"></span>
+              <span class="dot-g"></span>
             </div>
-            <span class="text-gray-400 text-xs font-mono">Main.java</span>
-            <div class="w-16"></div>
+            <span class="window-title">Main.java</span>
+            <div style="width: 64px"></div>
           </div>
 
-          <!-- Zone de code -->
-          <div class="-mt-4">
-            <textarea
-              ref="editorRef"
-              v-model="code"
-              @keydown.tab.prevent="handleTab"
-              class="w-full h-80 font-mono text-sm bg-gray-900 text-green-300 px-4 py-4 rounded-b-2xl resize-none outline-none leading-relaxed"
-              placeholder="// Ecrivez votre code Java ici..."
-              spellcheck="false"
-              autocomplete="off"
-              autocorrect="off"
-              autocapitalize="off"
-            ></textarea>
-          </div>
+          <textarea
+            ref="editorRef"
+            v-model="code"
+            @keydown.tab.prevent="handleTab"
+            class="code-editor"
+            placeholder="// Ecrivez votre code Java ici..."
+            spellcheck="false"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+          ></textarea>
 
-          <!-- Bannière déjà complété -->
-          <div v-if="alreadyCompleted" class="flex items-center gap-3 bg-green-50 border border-green-300 text-green-800 px-4 py-3 rounded-xl font-semibold">
-            <span class="text-2xl">✓</span>
+          <div v-if="alreadyCompleted" class="completed-banner">
+            <span class="completed-check">&#10003;</span>
             <div>
-              <div>Exercice déjà complété !</div>
-              <div class="text-sm font-normal">Vous avez déjà réussi cet exercice.</div>
+              <div class="completed-title">Exercice deja complete !</div>
+              <div class="completed-sub">Vous avez deja reussi cet exercice.</div>
             </div>
           </div>
 
-          <!-- Boutons -->
-          <div class="flex gap-3">
+          <div class="editor-actions">
             <button
               @click="runCode()"
               :disabled="executing || alreadyCompleted"
-              class="flex-1 py-3 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 active:bg-emerald-800 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              class="btn-run"
             >
-              <span v-if="executing" class="animate-spin">⟳</span>
-              <span>{{ executing ? 'Execution...' : '▶ Executer' }}</span>
+              <span v-if="executing" class="spin">&#8635;</span>
+              {{ executing ? 'Execution...' : '&#9654; Executer' }}
             </button>
             <button
               @click="submitCode"
               :disabled="executing || alreadyCompleted"
-              class="flex-1 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 active:bg-indigo-800 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              class="btn-submit"
             >
-              ✓ Soumettre
+              &#10003; Soumettre
             </button>
           </div>
 
-          <!-- Toast XP + navigation suivant -->
           <transition name="fade">
-            <div v-if="xpToast" class="space-y-3">
-              <div class="flex items-center gap-3 bg-yellow-50 border border-yellow-300 text-yellow-800 px-4 py-3 rounded-xl font-semibold">
-                <span class="text-2xl">⭐</span>
+            <div v-if="xpToast" class="xp-toast-wrap">
+              <div class="xp-toast">
+                <span class="toast-star">&#11088;</span>
                 <div>
-                  <div>Exercice réussi !</div>
-                  <div class="text-sm font-normal">+{{ exercise?.xpReward }} XP gagnés</div>
+                  <div class="toast-title">Exercice reussi !</div>
+                  <div class="toast-sub">+{{ exercise?.xpReward }} XP gagnes</div>
                 </div>
               </div>
-
-              <!-- Navigation suivant -->
-              <div class="flex gap-3">
+              <div class="nav-actions">
                 <router-link
                   v-if="nextExercise"
                   :to="`/exercises/${nextExercise.id}`"
-                  class="flex-1 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors text-center"
-                >
-                  Exercice suivant →
-                </router-link>
+                  class="btn-next-ex"
+                >Exercice suivant &#8594;</router-link>
                 <router-link
                   v-else-if="exercise?.lessonId"
                   :to="`/lessons/${exercise.lessonId}`"
-                  class="flex-1 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors text-center"
-                >
-                  Retour à la leçon ✓
-                </router-link>
+                  class="btn-next-ex"
+                >Retour a la lecon &#10003;</router-link>
               </div>
             </div>
           </transition>
 
-          <!-- Résultat -->
-          <div v-if="output" class="rounded-xl overflow-hidden border" :class="outputSuccess ? 'border-green-200' : 'border-red-200'">
-            <div
-              class="px-4 py-2 text-xs font-semibold uppercase tracking-wide flex items-center gap-2"
-              :class="outputSuccess ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'"
-            >
-              <span>{{ outputSuccess ? '✓ Succès' : '✗ Erreur' }}</span>
+          <div v-if="output" class="output-panel" :class="outputSuccess ? 'out-success' : 'out-error'">
+            <div class="output-header">
+              <span>{{ outputSuccess ? '&#10003; Succes' : '&#10007; Erreur' }}</span>
             </div>
-            <div class="p-4 bg-gray-950 font-mono text-sm overflow-x-auto">
-              <pre class="text-gray-200 whitespace-pre-wrap">{{ output }}</pre>
+            <div class="output-body">
+              <pre class="output-pre">{{ output }}</pre>
             </div>
           </div>
+
         </div>
       </div>
 
-      <div v-else class="text-center py-12 text-gray-500">
-        Exercice introuvable.
-      </div>
+      <div v-else class="empty">Exercice introuvable.</div>
     </div>
   </MainLayout>
 </template>
@@ -245,13 +212,11 @@ async function fetchExercise() {
     exercise.value = response.data
     code.value = response.data.starterCode || ''
 
-    // Charger les autres exercices de la même leçon pour la navigation
     if (response.data.lessonId) {
       const listRes = await api.get(`/exercises/lesson/${response.data.lessonId}`)
       lessonExercises.value = listRes.data
     }
 
-    // Vérifier si l'exercice est déjà complété
     if (authStore.user?.id) {
       try {
         const progressRes = await api.get(`/dashboard/${authStore.user.id}/exercises/${route.params.exerciseId}/progress`)
@@ -311,10 +276,313 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.4s ease;
+.exercise-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
 }
-.fade-enter-from, .fade-leave-to {
-  opacity: 0;
+
+.exercise-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
+.btn-back {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--c-accent-light);
+  background: transparent;
+  border: none;
+  padding: 0;
+  transition: opacity var(--t);
+}
+.btn-back:hover { opacity: 0.75; }
+.ex-counter {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--c-muted);
+}
+
+.loading {
+  text-align: center;
+  padding: 64px 0;
+  font-size: 13px;
+  color: var(--c-muted);
+  animation: pulse 1.4s ease infinite;
+}
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+/* Grid */
+.exercise-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+/* Instructions */
+.instructions-panel {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 18px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.instructions-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.exercise-title {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--c-text);
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  flex: 1;
+}
+
+.diff-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  border-radius: 100px;
+  flex-shrink: 0;
+}
+.diff-easy { background: var(--c-green-soft); color: var(--c-green); border: 1px solid rgba(34, 197, 94, 0.2); }
+.diff-medium { background: var(--c-amber-soft); color: var(--c-amber-light); border: 1px solid rgba(245, 158, 11, 0.2); }
+.diff-hard { background: var(--c-red-soft); color: var(--c-red); border: 1px solid rgba(239, 68, 68, 0.2); }
+
+.exercise-desc {
+  font-size: 13px;
+  color: var(--c-text-2);
+  line-height: 1.75;
+}
+
+.hints-block {
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.hints-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.hint-glyph { color: var(--c-amber); font-size: 14px; }
+.hints-title {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--c-amber-light);
+}
+.hints-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.hint-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--c-text-2);
+}
+.hint-num {
+  width: 16px;
+  height: 16px;
+  border-radius: 100px;
+  background: var(--c-amber-soft);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  color: var(--c-amber-light);
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.instructions-footer {
+  padding-top: 4px;
+  border-top: 1px solid var(--c-border);
+}
+.xp-tag {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-amber-light);
+  background: var(--c-amber-soft);
+  padding: 4px 12px;
+  border-radius: 100px;
+  border: 1px solid rgba(245, 158, 11, 0.18);
+}
+
+/* Editor */
+.editor-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.window-bar {
+  background: #1a1a1e;
+  border: 1px solid var(--c-border-md);
+  border-bottom: none;
+  border-radius: 12px 12px 0 0;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.window-dots { display: flex; align-items: center; gap: 6px; }
+.dot-r { width: 10px; height: 10px; border-radius: 100px; background: #ff5f56; }
+.dot-y { width: 10px; height: 10px; border-radius: 100px; background: #ffbd2e; }
+.dot-g { width: 10px; height: 10px; border-radius: 100px; background: #27c93f; }
+.window-title { font-size: 11px; font-family: var(--font-mono); color: var(--c-muted); }
+
+.code-editor {
+  width: 100%;
+  height: 320px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.7;
+  background: #0d0d10;
+  color: #86efac;
+  border: 1px solid var(--c-border-md);
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  padding: 16px 18px;
+  resize: none;
+  outline: none;
+  margin-top: -10px;
+}
+.code-editor::placeholder { color: var(--c-subtle); }
+
+.completed-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--c-green-soft);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.completed-check {
+  font-size: 18px;
+  color: var(--c-green);
+  font-weight: 700;
+}
+.completed-title { font-size: 14px; font-weight: 600; color: var(--c-green); }
+.completed-sub { font-size: 12px; color: var(--c-muted); margin-top: 2px; }
+
+.editor-actions { display: flex; gap: 10px; }
+.btn-run {
+  flex: 1;
+  padding: 12px;
+  background: var(--c-green);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: opacity var(--t), transform var(--t);
+}
+.btn-run:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
+.btn-run:disabled { opacity: 0.4; }
+.btn-submit {
+  flex: 1;
+  padding: 12px;
+  background: var(--c-accent);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: opacity var(--t), transform var(--t);
+}
+.btn-submit:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
+.btn-submit:disabled { opacity: 0.4; }
+.spin { display: inline-block; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.xp-toast-wrap { display: flex; flex-direction: column; gap: 8px; }
+.xp-toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--c-amber-soft);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.toast-star { font-size: 20px; }
+.toast-title { font-size: 14px; font-weight: 600; color: var(--c-amber-light); }
+.toast-sub { font-size: 12px; color: var(--c-muted); margin-top: 2px; }
+.nav-actions { display: flex; gap: 8px; }
+.btn-next-ex {
+  flex: 1;
+  padding: 11px;
+  background: var(--c-accent);
+  color: white;
+  border-radius: 10px;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  transition: opacity var(--t), transform var(--t);
+}
+.btn-next-ex:hover { opacity: 0.88; transform: translateY(-1px); }
+
+.output-panel {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid transparent;
+}
+.out-success { border-color: rgba(34, 197, 94, 0.2); }
+.out-error { border-color: rgba(239, 68, 68, 0.2); }
+.output-header {
+  padding: 8px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.out-success .output-header { background: var(--c-green-soft); color: var(--c-green); }
+.out-error .output-header { background: var(--c-red-soft); color: var(--c-red); }
+.output-body { background: #0d0d10; padding: 14px 16px; }
+.output-pre {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--c-text-2);
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+.empty {
+  text-align: center;
+  padding: 48px 0;
+  font-size: 13px;
+  color: var(--c-muted);
+}
+
+.fade-enter-active, .fade-leave-active { transition: opacity 0.4s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>
