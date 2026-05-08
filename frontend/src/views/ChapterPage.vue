@@ -1,78 +1,53 @@
 <template>
   <MainLayout>
-    <div class="max-w-4xl mx-auto">
-      <!-- Fil d'Ariane -->
-      <nav class="flex items-center gap-2 text-sm text-gray-500 mb-6">
-        <router-link to="/courses" class="hover:text-indigo-600 transition-colors">Cours</router-link>
-        <span>/</span>
-        <span class="text-gray-800 font-medium">{{ chapter?.title || 'Chapitre' }}</span>
+    <div class="chapter-page">
+
+      <nav class="breadcrumb">
+        <router-link to="/courses">Cours</router-link>
+        <span class="sep">/</span>
+        <span class="current">{{ chapter?.title || 'Chapitre' }}</span>
       </nav>
 
-      <div v-if="loading" class="text-center py-16">
-        <div class="animate-pulse text-gray-400">Chargement...</div>
-      </div>
+      <div v-if="loading" class="loading">Chargement...</div>
 
       <div v-else-if="chapter">
-        <!-- En-tête chapitre -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-8">
-          <div class="flex items-start gap-5">
-            <div class="w-14 h-14 rounded-2xl bg-indigo-100 flex items-center justify-center text-2xl shrink-0">
-              {{ chapterEmoji }}
-            </div>
-            <div class="flex-1">
-              <p class="text-indigo-600 text-sm font-medium mb-1">Chapitre {{ chapter.orderIndex }}</p>
-              <h1 class="text-3xl font-bold text-gray-900 mb-3">{{ chapter.title }}</h1>
-              <p class="text-gray-600 leading-relaxed">{{ chapter.description }}</p>
-            </div>
-            <div class="shrink-0 text-center bg-indigo-50 rounded-xl px-5 py-3">
-              <div class="text-2xl font-bold text-indigo-700">{{ chapter.xpReward }}</div>
-              <div class="text-xs text-indigo-400 font-medium">XP total</div>
-            </div>
+
+        <div class="chapter-header">
+          <div class="chapter-icon">{{ chapterEmoji }}</div>
+          <div class="chapter-meta">
+            <p class="eyebrow">Chapitre {{ chapter.orderIndex }}</p>
+            <h1 class="chapter-title">{{ chapter.title }}</h1>
+            <p class="chapter-desc">{{ chapter.description }}</p>
+          </div>
+          <div class="chapter-xp-block">
+            <div class="xp-num">{{ chapter.xpReward }}</div>
+            <div class="xp-label">XP total</div>
           </div>
         </div>
 
-        <!-- Liste des leçons -->
-        <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <span>📚</span>
-          <span>{{ lessons.length }} leçon{{ lessons.length > 1 ? 's' : '' }}</span>
-        </h2>
+        <p class="eyebrow section-label">{{ lessons.length }} lecon{{ lessons.length > 1 ? 's' : '' }}</p>
 
-        <div v-if="lessons.length > 0" class="space-y-3">
+        <div v-if="lessons.length > 0" class="lessons-list">
           <router-link
             v-for="(lesson, index) in lessons"
             :key="lesson.id"
             :to="`/lessons/${lesson.id}`"
-            class="group flex items-center gap-5 bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:border-indigo-300 hover:shadow-md transition-all"
+            class="lesson-row"
           >
-            <!-- Numéro -->
-            <div class="w-10 h-10 rounded-xl bg-indigo-50 group-hover:bg-indigo-100 flex items-center justify-center font-bold text-indigo-600 shrink-0 transition-colors">
-              {{ index + 1 }}
+            <span class="lesson-num">{{ String(index + 1).padStart(2, '0') }}</span>
+            <div class="lesson-info">
+              <span class="lesson-name">{{ lesson.title }}</span>
+              <span class="lesson-sub">Lecon {{ lesson.orderIndex }}</span>
             </div>
-
-            <!-- Titre + sous-titre -->
-            <div class="flex-1 min-w-0">
-              <h3 class="font-semibold text-gray-900 group-hover:text-indigo-700 transition-colors">{{ lesson.title }}</h3>
-              <p class="text-sm text-gray-400 mt-0.5">Leçon {{ lesson.orderIndex }}</p>
-            </div>
-
-            <!-- XP -->
-            <span class="shrink-0 px-3 py-1 bg-yellow-50 text-yellow-700 border border-yellow-200 rounded-full text-xs font-semibold">
-              +{{ lesson.xpReward }} XP
-            </span>
-
-            <!-- Flèche -->
-            <span class="shrink-0 text-gray-400 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all font-bold">→</span>
+            <span class="lesson-xp">+{{ lesson.xpReward }} XP</span>
+            <span class="lesson-arrow">&#8594;</span>
           </router-link>
         </div>
 
-        <div v-else class="bg-white rounded-2xl shadow-sm border border-gray-100 p-10 text-center text-gray-400">
-          Aucune leçon disponible pour ce chapitre.
-        </div>
+        <div v-else class="empty">&#9676; Aucune lecon disponible pour ce chapitre.</div>
       </div>
 
-      <div v-else class="text-center py-12 text-gray-500">
-        Chapitre introuvable.
-      </div>
+      <div v-else class="empty">Chapitre introuvable.</div>
     </div>
   </MainLayout>
 </template>
@@ -112,3 +87,195 @@ onMounted(() => {
   fetchData()
 })
 </script>
+
+<style scoped>
+.chapter-page {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--c-muted);
+}
+.breadcrumb a { transition: color var(--t); }
+.breadcrumb a:hover { color: var(--c-text-2); }
+.sep { color: var(--c-subtle); }
+.current { color: var(--c-text-2); }
+
+.loading {
+  text-align: center;
+  padding: 64px 0;
+  font-size: 13px;
+  color: var(--c-muted);
+  animation: pulse 1.4s ease infinite;
+}
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+/* Header */
+.chapter-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 18px;
+  padding: 24px;
+}
+
+.chapter-icon {
+  font-size: 26px;
+  width: 52px;
+  height: 52px;
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.chapter-meta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--c-muted);
+}
+
+.chapter-title {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--c-text);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.chapter-desc {
+  font-size: 13px;
+  color: var(--c-text-2);
+  line-height: 1.6;
+}
+
+.chapter-xp-block {
+  text-align: center;
+  background: var(--c-amber-soft);
+  border: 1px solid rgba(245, 158, 11, 0.18);
+  border-radius: 12px;
+  padding: 14px 18px;
+  flex-shrink: 0;
+}
+.xp-num {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--c-amber-light);
+  line-height: 1;
+}
+.xp-label {
+  font-size: 10px;
+  color: var(--c-muted);
+  margin-top: 3px;
+}
+
+.section-label { margin-top: 4px; }
+
+/* Lessons list */
+.lessons-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lesson-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 14px;
+  padding: 16px 20px;
+  text-decoration: none;
+  transition: border-color var(--t), background var(--t), transform var(--t-slow);
+}
+.lesson-row:hover {
+  border-color: var(--c-border-strong);
+  background: var(--c-surface-hover);
+  transform: translateY(-1px);
+}
+
+.lesson-num {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--c-subtle);
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+  width: 24px;
+}
+
+.lesson-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.lesson-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--c-text);
+  transition: color var(--t);
+}
+.lesson-row:hover .lesson-name { color: var(--c-accent-light); }
+.lesson-sub {
+  font-size: 11px;
+  color: var(--c-muted);
+}
+
+.lesson-xp {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-amber-light);
+  background: var(--c-amber-soft);
+  padding: 3px 10px;
+  border-radius: 100px;
+  border: 1px solid rgba(245, 158, 11, 0.15);
+  flex-shrink: 0;
+}
+
+.lesson-arrow {
+  font-size: 13px;
+  color: var(--c-subtle);
+  transition: color var(--t), transform var(--t);
+  flex-shrink: 0;
+}
+.lesson-row:hover .lesson-arrow {
+  color: var(--c-accent-light);
+  transform: translateX(3px);
+}
+
+.empty {
+  text-align: center;
+  padding: 48px 0;
+  font-size: 13px;
+  color: var(--c-muted);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 16px;
+}
+</style>
