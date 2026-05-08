@@ -1,212 +1,159 @@
 <template>
   <MainLayout>
-    <div class="max-w-3xl mx-auto">
-      <div v-if="loading" class="space-y-4">
-        <div class="bg-white rounded-2xl border border-gray-100 p-6 animate-pulse">
-          <div class="h-7 bg-gray-200 rounded-lg w-64 mb-4"></div>
-          <div class="h-3 bg-gray-100 rounded-full"></div>
-        </div>
-        <div class="bg-white rounded-2xl border border-gray-100 p-6 animate-pulse">
-          <div class="h-6 bg-gray-200 rounded-lg w-3/4 mb-6"></div>
-          <div class="space-y-3">
-            <div v-for="i in 4" :key="i" class="h-14 bg-gray-100 rounded-xl"></div>
-          </div>
-        </div>
+    <div class="quiz-page">
+
+      <!-- Skeleton -->
+      <div v-if="loading" class="skeleton-wrap">
+        <div class="skeleton-header"></div>
+        <div class="skeleton-body"></div>
       </div>
 
       <!-- Quiz en cours -->
       <div v-else-if="!submitted && questions.length > 0">
-        <!-- Header -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-5">
-          <div class="flex items-center justify-between mb-4">
-            <h1 class="text-xl font-bold text-gray-900 truncate mr-4">{{ quiz?.title }}</h1>
-            <div class="flex items-center gap-3 shrink-0">
+
+        <div class="quiz-header">
+          <div class="quiz-header-top">
+            <h1 class="quiz-title">{{ quiz?.title }}</h1>
+            <div class="quiz-header-meta">
               <span
                 v-if="timeLeft !== null"
-                class="text-sm font-bold px-3 py-1.5 rounded-xl"
-                :class="timeLeft <= 30 ? 'bg-red-100 text-red-700 animate-pulse' : 'bg-gray-100 text-gray-600'"
-              >
-                ⏱ {{ formattedTime }}
-              </span>
-              <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1.5 rounded-xl">
-                {{ currentIndex + 1 }} / {{ questions.length }}
-              </span>
+                class="timer"
+                :class="{ 'timer-urgent': timeLeft <= 30 }"
+              >&#9203; {{ formattedTime }}</span>
+              <span class="progress-counter">{{ currentIndex + 1 }} / {{ questions.length }}</span>
             </div>
           </div>
-          <!-- Barre progression -->
-          <div class="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
+          <div class="progress-bar-wrap">
             <div
-              class="bg-gradient-to-r from-indigo-500 to-purple-500 h-2.5 rounded-full transition-all duration-500"
+              class="progress-bar"
               :style="{ width: ((currentIndex + 1) / questions.length * 100) + '%' }"
             ></div>
           </div>
-          <!-- Points indicateurs -->
-          <div class="flex justify-between mt-2">
+          <div class="progress-dots">
             <div
               v-for="(q, i) in questions"
               :key="q.id"
-              class="w-2 h-2 rounded-full transition-colors"
-              :class="i < currentIndex ? 'bg-indigo-400' : i === currentIndex ? 'bg-indigo-600' : 'bg-gray-200'"
+              class="dot"
+              :class="i < currentIndex ? 'dot-done' : i === currentIndex ? 'dot-active' : 'dot-pending'"
             ></div>
           </div>
         </div>
 
-        <!-- Question -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <h2 class="text-lg font-semibold text-gray-900 mb-5 leading-relaxed">{{ currentQuestion.text }}</h2>
+        <div class="question-card">
+          <h2 class="question-text">{{ currentQuestion.text }}</h2>
 
-          <div v-if="currentQuestion.codeSnippet" class="bg-gray-950 text-green-300 p-4 rounded-xl font-mono text-sm mb-6 overflow-x-auto">
+          <div v-if="currentQuestion.codeSnippet" class="question-code">
             <pre>{{ currentQuestion.codeSnippet }}</pre>
           </div>
 
-          <!-- Choix multiples (checkbox) -->
-          <div v-if="currentQuestion.questionType === 'MULTIPLE_CHOICE'" class="space-y-3">
+          <!-- Choix multiple -->
+          <div v-if="currentQuestion.questionType === 'MULTIPLE_CHOICE'" class="answers-list">
             <label
               v-for="answer in currentQuestion.answers"
               :key="answer.id"
-              class="flex items-center gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all select-none"
-              :class="selectedAnswers[currentQuestion.id]?.includes(answer.id)
-                ? 'border-indigo-500 bg-indigo-50 text-indigo-900'
-                : 'border-gray-200 hover:border-indigo-200 hover:bg-gray-50'"
+              class="answer-option"
+              :class="{ 'answer-selected': selectedAnswers[currentQuestion.id]?.includes(answer.id) }"
             >
-              <div
-                class="w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors"
-                :class="selectedAnswers[currentQuestion.id]?.includes(answer.id)
-                  ? 'border-indigo-500 bg-indigo-500'
-                  : 'border-gray-300'"
-              >
-                <span v-if="selectedAnswers[currentQuestion.id]?.includes(answer.id)" class="text-white text-xs font-bold">✓</span>
+              <div class="answer-check" :class="{ 'checked': selectedAnswers[currentQuestion.id]?.includes(answer.id) }">
+                <span v-if="selectedAnswers[currentQuestion.id]?.includes(answer.id)">&#10003;</span>
               </div>
-              <input type="checkbox" :value="answer.id" v-model="selectedAnswers[currentQuestion.id]" class="hidden" />
-              <span class="flex-1 text-sm">{{ answer.text }}</span>
+              <input type="checkbox" :value="answer.id" v-model="selectedAnswers[currentQuestion.id]" class="hidden-input" />
+              <span class="answer-text">{{ answer.text }}</span>
             </label>
           </div>
 
-          <!-- Choix unique (radio) -->
-          <div v-else class="space-y-3">
+          <!-- Choix unique -->
+          <div v-else class="answers-list">
             <button
               v-for="(answer, idx) in currentQuestion.answers"
               :key="answer.id"
               @click="selectedAnswers[currentQuestion.id] = [answer.id]"
-              class="w-full flex items-center gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all text-left"
-              :class="selectedAnswers[currentQuestion.id]?.[0] === answer.id
-                ? 'border-indigo-500 bg-indigo-50'
-                : 'border-gray-200 hover:border-indigo-200 hover:bg-gray-50'"
+              class="answer-option"
+              :class="{ 'answer-selected': selectedAnswers[currentQuestion.id]?.[0] === answer.id }"
             >
               <div
-                class="w-8 h-8 rounded-xl border-2 flex items-center justify-center shrink-0 font-bold text-sm transition-colors"
-                :class="selectedAnswers[currentQuestion.id]?.[0] === answer.id
-                  ? 'border-indigo-500 bg-indigo-500 text-white'
-                  : 'border-gray-300 text-gray-400'"
-              >
-                {{ ['A','B','C','D'][idx] }}
-              </div>
-              <span class="flex-1 text-sm text-gray-800">{{ answer.text }}</span>
+                class="answer-letter"
+                :class="{ 'letter-selected': selectedAnswers[currentQuestion.id]?.[0] === answer.id }"
+              >{{ ['A', 'B', 'C', 'D'][idx] }}</div>
+              <span class="answer-text">{{ answer.text }}</span>
             </button>
           </div>
 
-          <div class="flex justify-between mt-8 gap-3">
-            <button
-              v-if="currentIndex > 0"
-              @click="currentIndex--"
-              class="px-6 py-3 border-2 border-gray-200 rounded-xl hover:bg-gray-50 transition-colors font-medium text-gray-600 text-sm"
-            >
-              ← Précédent
-            </button>
+          <div class="quiz-nav">
+            <button v-if="currentIndex > 0" @click="currentIndex--" class="btn-prev">&#8592; Precedent</button>
             <div v-else></div>
-
             <button
               v-if="currentIndex < questions.length - 1"
               @click="currentIndex++"
-              class="px-8 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors font-semibold text-sm"
-            >
-              Suivant →
-            </button>
+              class="btn-next"
+            >Suivant &#8594;</button>
             <button
               v-else
               @click="submitQuiz"
               :disabled="submitting"
-              class="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:opacity-90 transition-opacity font-semibold text-sm disabled:opacity-50"
-            >
-              {{ submitting ? 'Envoi...' : '✓ Terminer le quiz' }}
-            </button>
+              class="btn-submit"
+            >{{ submitting ? 'Envoi...' : '&#10003; Terminer' }}</button>
           </div>
         </div>
       </div>
 
       <!-- Resultats -->
-      <div v-else-if="submitted && result" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
-        <!-- Score visuel -->
-        <div class="relative w-32 h-32 mx-auto mb-6">
-          <svg class="w-32 h-32 -rotate-90" viewBox="0 0 120 120">
-            <circle cx="60" cy="60" r="50" fill="none" stroke="#e5e7eb" stroke-width="10"/>
+      <div v-else-if="submitted && result" class="results-card">
+        <div class="score-ring-wrap">
+          <svg width="128" height="128" viewBox="0 0 120 120" class="score-svg">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--c-border-md)" stroke-width="10"/>
             <circle
               cx="60" cy="60" r="50" fill="none"
-              :stroke="result.passed ? '#10b981' : '#ef4444'"
+              :stroke="result.passed ? 'var(--c-green)' : 'var(--c-red)'"
               stroke-width="10"
               stroke-linecap="round"
               :stroke-dasharray="314"
               :stroke-dashoffset="314 - (314 * result.score / 100)"
-              class="transition-all duration-1000"
+              class="score-circle"
             />
           </svg>
-          <div class="absolute inset-0 flex flex-col items-center justify-center">
-            <span class="text-2xl font-extrabold" :class="result.passed ? 'text-green-600' : 'text-red-500'">{{ result.score }}%</span>
+          <div class="score-label" :class="result.passed ? 'score-pass' : 'score-fail'">
+            {{ result.score }}%
           </div>
         </div>
 
-        <h2 class="text-2xl font-bold text-gray-900 mb-2">
-          {{ result.passed ? 'Félicitations !' : 'Dommage...' }}
-        </h2>
-        <p class="text-gray-500 mb-6">
-          {{ result.correctAnswers }}/{{ result.totalQuestions }} bonnes réponses
-        </p>
+        <h2 class="result-title">{{ result.passed ? 'Reussi !' : 'Dommage...' }}</h2>
+        <p class="result-sub">{{ result.correctAnswers }}/{{ result.totalQuestions }} bonnes reponses</p>
 
-        <!-- Toast XP -->
         <transition name="fade">
-          <div
-            v-if="result.passed && result.xpEarned > 0"
-            class="inline-flex items-center gap-3 bg-yellow-50 border border-yellow-200 text-yellow-800 px-6 py-3 rounded-2xl font-semibold mb-6"
-          >
-            <span class="text-2xl">⭐</span>
-            <div class="text-left">
-              <div class="text-sm font-normal text-yellow-600">XP gagnés</div>
-              <div>+{{ result.xpEarned }} XP</div>
+          <div v-if="result.passed && result.xpEarned > 0" class="xp-badge">
+            <span class="xp-star">&#11088;</span>
+            <div>
+              <div class="xp-badge-label">XP gagnes</div>
+              <div class="xp-badge-val">+{{ result.xpEarned }} XP</div>
             </div>
           </div>
         </transition>
 
-        <!-- Résultats par question -->
-        <div v-if="result.questionResults?.length > 0" class="text-left mt-4 space-y-2 mb-6">
+        <div v-if="result.questionResults?.length > 0" class="q-results">
           <div
             v-for="(qr, index) in result.questionResults"
             :key="qr.questionId"
-            class="flex items-start gap-3 p-3 rounded-xl"
-            :class="qr.correct ? 'bg-green-50 border border-green-100' : 'bg-red-50 border border-red-100'"
+            class="q-result-row"
+            :class="qr.correct ? 'q-correct' : 'q-wrong'"
           >
-            <span class="text-lg shrink-0">{{ qr.correct ? '✅' : '❌' }}</span>
-            <div class="text-sm">
-              <div class="font-medium text-gray-800">{{ questionForId(qr.questionId)?.text || 'Question ' + (index + 1) }}</div>
-              <div v-if="!qr.correct && qr.explanation" class="text-gray-500 mt-0.5">{{ qr.explanation }}</div>
+            <span class="q-result-icon">{{ qr.correct ? '&#10003;' : '&#10007;' }}</span>
+            <div class="q-result-info">
+              <div class="q-result-text">{{ questionForId(qr.questionId)?.text || 'Question ' + (index + 1) }}</div>
+              <div v-if="!qr.correct && qr.explanation" class="q-result-expl">{{ qr.explanation }}</div>
             </div>
           </div>
         </div>
 
-        <router-link
-          to="/quizzes"
-          class="inline-block px-8 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors font-semibold"
-        >
-          Retour aux quiz
-        </router-link>
+        <router-link to="/quizzes" class="btn-back-quizzes">Retour aux quiz</router-link>
       </div>
 
-      <!-- Aucune question -->
-      <div v-else-if="!loading" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-10 text-center">
-        <p class="text-gray-500 mb-4">Ce quiz ne contient pas encore de questions.</p>
-        <router-link to="/quizzes" class="text-indigo-600 hover:underline font-medium">
-          Retour aux quiz
-        </router-link>
+      <!-- Pas de questions -->
+      <div v-else-if="!loading" class="empty-state">
+        <p>Ce quiz ne contient pas encore de questions.</p>
+        <router-link to="/quizzes" class="empty-link">Retour aux quiz</router-link>
       </div>
+
     </div>
   </MainLayout>
 </template>
@@ -268,11 +215,7 @@ async function fetchQuiz() {
     ])
     quiz.value = quizRes.data
     questions.value = questionsRes.data
-
-    questions.value.forEach(q => {
-      selectedAnswers.value[q.id] = []
-    })
-
+    questions.value.forEach(q => { selectedAnswers.value[q.id] = [] })
     if (quiz.value.timeLimitSeconds > 0) {
       startTimer(quiz.value.timeLimitSeconds)
     }
@@ -315,12 +258,374 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
+.quiz-page {
+  max-width: 640px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
+
+/* Skeleton */
+.skeleton-wrap { display: flex; flex-direction: column; gap: 16px; }
+.skeleton-header {
+  height: 88px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 16px;
+  animation: pulse 1.4s ease infinite;
 }
+.skeleton-body {
+  height: 320px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 16px;
+  animation: pulse 1.4s ease infinite;
+  animation-delay: 0.2s;
+}
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+/* Header */
+.quiz-header {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 16px;
+  padding: 18px 20px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.quiz-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.quiz-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--c-text);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.quiz-header-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.timer {
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--c-text-2);
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border);
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+.timer-urgent {
+  color: var(--c-red);
+  border-color: rgba(239, 68, 68, 0.3);
+  background: var(--c-red-soft);
+  animation: pulse 0.8s ease infinite;
+}
+.progress-counter {
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  color: var(--c-muted);
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border);
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+.progress-bar-wrap {
+  width: 100%;
+  height: 3px;
+  background: var(--c-surface-2);
+  border-radius: 100px;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  background: var(--c-accent);
+  border-radius: 100px;
+  transition: width 0.4s ease;
+}
+
+.progress-dots {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 100px;
+  transition: background 0.2s;
+}
+.dot-done { background: var(--c-accent); }
+.dot-active { background: var(--c-accent-light); width: 14px; }
+.dot-pending { background: var(--c-subtle); }
+
+/* Question */
+.question-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 18px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.question-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--c-text);
+  line-height: 1.6;
+}
+.question-code {
+  background: #0d0d10;
+  border: 1px solid var(--c-border-md);
+  border-radius: 10px;
+  padding: 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: #86efac;
+  overflow-x: auto;
+}
+.question-code pre { margin: 0; }
+
+/* Answers */
+.answers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.answer-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--c-border-md);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color var(--t), background var(--t);
+  background: var(--c-surface-2);
+  text-align: left;
+  width: 100%;
+}
+.answer-option:hover { border-color: var(--c-accent-glow); background: var(--c-accent-soft); }
+.answer-selected {
+  border-color: var(--c-accent) !important;
+  background: var(--c-accent-soft) !important;
+}
+.hidden-input { display: none; }
+
+.answer-check {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid var(--c-border-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: white;
+  transition: background var(--t), border-color var(--t);
+}
+.checked {
+  background: var(--c-accent);
+  border-color: var(--c-accent);
+}
+
+.answer-letter {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1.5px solid var(--c-border-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--c-muted);
+  flex-shrink: 0;
+  transition: background var(--t), border-color var(--t), color var(--t);
+}
+.letter-selected {
+  background: var(--c-accent);
+  border-color: var(--c-accent);
+  color: white;
+}
+
+.answer-text {
+  font-size: 14px;
+  color: var(--c-text-2);
+  flex: 1;
+}
+.answer-selected .answer-text { color: var(--c-text); }
+
+/* Navigation */
+.quiz-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 4px;
+}
+.btn-prev {
+  padding: 10px 20px;
+  border: 1px solid var(--c-border-md);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--c-text-2);
+  font-size: 13px;
+  font-weight: 500;
+  transition: border-color var(--t), background var(--t);
+}
+.btn-prev:hover { border-color: var(--c-border-strong); background: var(--c-surface-2); }
+.btn-next {
+  padding: 10px 24px;
+  background: var(--c-accent);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: opacity var(--t), transform var(--t);
+}
+.btn-next:hover { opacity: 0.88; transform: translateY(-1px); }
+.btn-submit {
+  padding: 10px 24px;
+  background: var(--c-green);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: opacity var(--t), transform var(--t);
+}
+.btn-submit:hover { opacity: 0.88; transform: translateY(-1px); }
+.btn-submit:disabled { opacity: 0.5; transform: none; }
+
+/* Results */
+.results-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 18px;
+  padding: 36px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+.score-ring-wrap { position: relative; width: 128px; height: 128px; }
+.score-svg { transform: rotate(-90deg); }
+.score-circle { transition: stroke-dashoffset 1s ease; }
+.score-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+}
+.score-pass { color: var(--c-green); }
+.score-fail { color: var(--c-red); }
+
+.result-title {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--c-text);
+}
+.result-sub { font-size: 13px; color: var(--c-muted); margin-top: -8px; }
+
+.xp-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--c-amber-soft);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  padding: 14px 20px;
+  border-radius: 14px;
+}
+.xp-star { font-size: 22px; }
+.xp-badge-label { font-size: 11px; color: var(--c-muted); }
+.xp-badge-val { font-size: 16px; font-weight: 700; color: var(--c-amber-light); }
+
+.q-results {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+.q-result-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+}
+.q-correct { background: var(--c-green-soft); border-color: rgba(34, 197, 94, 0.15); }
+.q-wrong { background: var(--c-red-soft); border-color: rgba(239, 68, 68, 0.15); }
+.q-result-icon {
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.q-correct .q-result-icon { color: var(--c-green); }
+.q-wrong .q-result-icon { color: var(--c-red); }
+.q-result-text { font-size: 13px; font-weight: 500; color: var(--c-text-2); }
+.q-result-expl { font-size: 12px; color: var(--c-muted); margin-top: 2px; }
+
+.btn-back-quizzes {
+  display: inline-block;
+  padding: 11px 28px;
+  background: var(--c-accent);
+  color: white;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity var(--t), transform var(--t);
+}
+.btn-back-quizzes:hover { opacity: 0.88; transform: translateY(-1px); }
+
+/* Empty */
+.empty-state {
+  text-align: center;
+  padding: 48px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  color: var(--c-muted);
+  font-size: 14px;
+}
+.empty-link {
+  color: var(--c-accent-light);
+  font-weight: 500;
+  transition: opacity var(--t);
+}
+.empty-link:hover { opacity: 0.75; }
+
+.fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>
